@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'NoteScreen.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -9,6 +11,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Stream list;
+  CollectionReference collectionReference = FirebaseFirestore.instance
+      .collection("Users")
+      .doc('Nb4Pc63mVxe65WN5tCxq')
+      .collection("ToDo Lists");
 
   @override
   void initState() {
@@ -52,13 +58,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           } else {
-          
             return Column(
               children: [
-              
                 GestureDetector(
                   onTap: () {
-                    
+                    collectionReference.add({
+                      "title": "",
+                      "content": "",
+                    });
                   },
                   child: Container(
                     //color: Colors.yellow,
@@ -90,7 +97,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                
                 Container(
                   height: ScreenUtil().setHeight(725),
                   //color: Colors.yellow,
@@ -98,18 +104,54 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListView.builder(
                     itemCount: snapshot.data.docs.length,
                     itemBuilder: (context, pos) {
-                      return Container(
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              new MaterialPageRoute(
+                                  builder: (context) =>
+                                      NoteScreen(snapshot: snapshot.data.docs[pos]),
+                              )
+                          );
+                        },
                         child: Card(
                           child: Container(
                             padding: EdgeInsets.fromLTRB(
                                 ScreenUtil().setWidth(20),
-                                ScreenUtil().setHeight(20),
+                                ScreenUtil().setHeight(10),
                                 ScreenUtil().setWidth(20),
-                                ScreenUtil().setHeight(20)),
+                                ScreenUtil().setHeight(10)),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  snapshot.data.docs[pos].data()['title'],
+                                Container(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        snapshot.data.docs[pos].data()['title'],
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      Text(
+                                        snapshot.data.docs[pos]
+                                            .data()['content'],
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            color:
+                                                Colors.black.withOpacity(0.65)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    collectionReference
+                                        .doc(snapshot.data.docs[pos].id)
+                                        .delete();
+                                  },
+                                  icon: Icon(Icons.delete),
                                 ),
                               ],
                             ),

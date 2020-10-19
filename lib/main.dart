@@ -34,7 +34,6 @@ class _LoadingState extends State<Loading> {
   
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
-    MediaQueryData m = MediaQuery.of(context);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
