@@ -13,6 +13,8 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   TextEditingController titleCon = new TextEditingController();
   TextEditingController contentCon = new TextEditingController();
+  FocusNode titleNode = new FocusNode();
+  FocusNode contentNode = new FocusNode();
 
   @override
   void initState() {
@@ -27,13 +29,17 @@ class _NoteScreenState extends State<NoteScreen> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            FocusNode().unfocus();
-            Navigator.pop(context);
+            titleNode.unfocus();
+            contentNode.unfocus();
+            widget.snapshot.reference
+                .update({"title": titleCon.text, "content": contentCon.text}).then((value) => Navigator.pop(context));
           },
           icon: Icon(Icons.arrow_back),
         ),
         title: TextFormField(
           maxLines: 1,
+          controller: titleCon,
+          focusNode: titleNode,
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Title",
@@ -41,18 +47,29 @@ class _NoteScreenState extends State<NoteScreen> {
               color: Colors.grey,
             ),
           ),
+          onEditingComplete: () {
+            contentNode.requestFocus();
+          },
         ),
       ),
-      body: Container(
-        child: TextFormField(
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          textInputAction: TextInputAction.newline,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: "Content",
-            hintStyle: TextStyle(
-              color: Colors.grey,
+      body: SingleChildScrollView(
+        child: Container(
+          child: TextFormField(
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            minLines: 30,
+            controller: contentCon,
+            focusNode: contentNode,
+            /* style: TextStyle(
+              fontSize: 25,
+            ), */
+            textInputAction: TextInputAction.newline,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "Content",
+              hintStyle: TextStyle(
+                color: Colors.grey,
+              ),
             ),
           ),
         ),
