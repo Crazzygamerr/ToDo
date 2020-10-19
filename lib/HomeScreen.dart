@@ -21,7 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getList() async {
-    return FirebaseFirestore.instance.collection("Users").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Users")
+        .doc('Nb4Pc63mVxe65WN5tCxq')
+        .collection("ToDo Lists")
+        .snapshots();
   }
 
   @override
@@ -37,11 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: list,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        
           if (!snapshot.hasData ||
               snapshot.hasError ||
               snapshot.connectionState == ConnectionState.waiting) {
-              
             return Center(
               child: Container(
                 width: ScreenUtil().setWidth(20),
@@ -49,11 +51,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: CircularProgressIndicator(),
               ),
             );
-            
           } else {
           
-            return Text(snapshot.data.docs[0].data()['test']);
-            
+            return Column(
+              children: [
+              
+                GestureDetector(
+                  onTap: () {
+                    
+                  },
+                  child: Container(
+                    //color: Colors.yellow,
+                    height: ScreenUtil().setHeight(50),
+                    width: ScreenUtil().setWidth(410),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: ScreenUtil().setWidth(10),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, 0, ScreenUtil().setWidth(12), 0),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.blue,
+                            size: ScreenUtil().setHeight(25),
+                          ),
+                        ),
+                        Text(
+                          "Add new item",
+                          style: TextStyle(
+                            fontSize: ScreenUtil().setSp(20),
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                Container(
+                  height: ScreenUtil().setHeight(725),
+                  //color: Colors.yellow,
+                  //width: Screen,
+                  child: ListView.builder(
+                    itemCount: snapshot.data.docs.length,
+                    itemBuilder: (context, pos) {
+                      return Container(
+                        child: Card(
+                          child: Container(
+                            padding: EdgeInsets.fromLTRB(
+                                ScreenUtil().setWidth(20),
+                                ScreenUtil().setHeight(20),
+                                ScreenUtil().setWidth(20),
+                                ScreenUtil().setHeight(20)),
+                            child: Row(
+                              children: [
+                                Text(
+                                  snapshot.data.docs[pos].data()['title'],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
           }
         },
       ),
