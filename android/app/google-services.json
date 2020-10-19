@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "813024523465",
+    "firebase_url": "https://todo-eb4a8.firebaseio.com",
+    "project_id": "todo-eb4a8",
+    "storage_bucket": "todo-eb4a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:813024523465:android:2798b200d89ee167d48918",
+        "android_client_info": {
+          "package_name": "rishi.balamurugan.ToDo.classic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "813024523465-anhg9qlal7t6hjqboidjbr559r1tlaj9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe3bySNA4S1TBvu9_IkqvgPc9SIijeQok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "813024523465-anhg9qlal7t6hjqboidjbr559r1tlaj9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
