@@ -78,7 +78,14 @@ class _LoadingState extends State<Loading> {
             height: ScreenUtil().setHeight(75)
           ),
           
+          Container(
+            height: 1,
+            width: ScreenUtil().setWidth(410),
+            color: Colors.grey
+          ),
+          
           RaisedButton(
+            color: Colors.white,
             child: Container(
               child: Text("Log in with email"),
               width: ScreenUtil().setWidth(200),
@@ -93,7 +100,14 @@ class _LoadingState extends State<Loading> {
             },
           ),
           
+          Container(
+            height: 1,
+            width: ScreenUtil().setWidth(410),
+            color: Colors.grey
+          ),
+          
           RaisedButton(
+            color: Colors.white,
             child: Container(
               child: Text("Create account"),
               width: ScreenUtil().setWidth(200),
@@ -108,7 +122,14 @@ class _LoadingState extends State<Loading> {
             },
           ),
           
+          Container(
+            height: 1,
+            width: ScreenUtil().setWidth(410),
+            color: Colors.grey
+          ),
+          
           RaisedButton(
+            color: Colors.white,
             child: Container(
               child: Text("Continue as Guest"),
               width: ScreenUtil().setWidth(200),
@@ -121,6 +142,12 @@ class _LoadingState extends State<Loading> {
                   new MaterialPageRoute(builder: (context) => HomeScreen()),
                   (route) => false);
             },
+          ),
+          
+          Container(
+            height: 1,
+            width: ScreenUtil().setWidth(410),
+            color: Colors.grey
           ),
           
         ],
