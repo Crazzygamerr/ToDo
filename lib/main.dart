@@ -80,7 +80,7 @@ class _LoadingState extends State<Loading> {
           
           RaisedButton(
             child: Container(
-              child: Text("Log in"),
+              child: Text("Log in with email"),
               width: ScreenUtil().setWidth(200),
               alignment: Alignment.center,
             ),
@@ -92,6 +92,37 @@ class _LoadingState extends State<Loading> {
                   (route) => false);
             },
           ),
+          
+          RaisedButton(
+            child: Container(
+              child: Text("Create account"),
+              width: ScreenUtil().setWidth(200),
+              alignment: Alignment.center,
+            ),
+            //color: Colors.white,
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  new MaterialPageRoute(builder: (context) => HomeScreen()),
+                  (route) => false);
+            },
+          ),
+          
+          RaisedButton(
+            child: Container(
+              child: Text("Continue as Guest"),
+              width: ScreenUtil().setWidth(200),
+              alignment: Alignment.center,
+            ),
+            //color: Colors.white,
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  new MaterialPageRoute(builder: (context) => HomeScreen()),
+                  (route) => false);
+            },
+          ),
+          
         ],
       ),
     );
