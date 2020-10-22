@@ -73,8 +73,7 @@ class _CreateAccState extends State<CreateAcc> {
                   ),
                 ),
                 Container(
-                  padding:
-                      EdgeInsets.fromLTRB(0, ScreenUtil().setHeight(10), 0, 0),
+                  padding: EdgeInsets.fromLTRB(0, ScreenUtil().setHeight(10), 0, 0),
                   alignment: Alignment.bottomCenter,
                   child: RaisedButton(
                     color: Colors.black,
