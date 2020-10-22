@@ -30,7 +30,7 @@ class SharedPref {
     }
   }
   
-  Future<String> getEmail() async {
+  static Future<String> getEmail() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     return pref.getString(emailKey);
   }

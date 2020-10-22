@@ -1,3 +1,4 @@
+import 'package:ToDo/Shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,10 +12,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Stream list;
-  CollectionReference collectionReference = FirebaseFirestore.instance
-      .collection("Users")
-      .doc('Nb4Pc63mVxe65WN5tCxq')
-      .collection("ToDo Lists");
+  String email;
+
+  CollectionReference collectionReference;
 
   @override
   void initState() {
@@ -27,10 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getList() async {
-    return FirebaseFirestore.instance
+    email = await SharedPref.getEmail();
+    collectionReference = FirebaseFirestore.instance
         .collection("Users")
-        .doc('Nb4Pc63mVxe65WN5tCxq')
-        .collection("ToDo Lists")
+        .doc(email)
+        .collection("ToDo Lists");
+    return collectionReference
         .snapshots();
   }
 
@@ -109,10 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                               context,
                               new MaterialPageRoute(
-                                  builder: (context) =>
-                                      NoteScreen(snapshot: snapshot.data.docs[pos]),
-                              )
-                          );
+                                builder: (context) => NoteScreen(
+                                    snapshot: snapshot.data.docs[pos]),
+                              ));
                         },
                         child: Card(
                           child: Container(
