@@ -1,4 +1,7 @@
 import 'package:ToDo/HomeScreen.dart';
+import 'package:ToDo/Provider.dart';
+import 'package:ToDo/Widgets/CreateAcc.dart';
+import 'package:ToDo/Widgets/LoginScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
@@ -29,9 +31,11 @@ class Loading extends StatefulWidget {
 }
 
 class _LoadingState extends State<Loading> {
+  PageController pageCon = new PageController(initialPage: 0);
+  bool b = false;
+
   @override
   Widget build(BuildContext context) {
-  
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
     SystemChrome.setPreferredOrientations([
@@ -68,72 +72,30 @@ class _LoadingState extends State<Loading> {
           SizedBox(
             height: 30,
           ),
-          
           Text(
             "The classic To-Do list",
             style: TextStyle(fontSize: 25),
           ),
-          
           SizedBox(
-            height: ScreenUtil().setHeight(175)
+            height: ScreenUtil().setHeight(125),
           ),
-          
-          Container(
-            height: 1,
-            width: ScreenUtil().setWidth(375),
-            color: Colors.black.withOpacity(0.1)
-          ),
-          
-          FlatButton(
-            color: Colors.white,
+          Provider(
+          pageCon: pageCon,
             child: Container(
-              child: Text("Log in with email"),
-              width: ScreenUtil().setWidth(200),
-              height: ScreenUtil().setHeight(50),
-              alignment: Alignment.center,
+              //color: Colors.blue,
+              width: ScreenUtil().setWidth(410),
+              height: ScreenUtil().setHeight(400),
+              child: PageView(
+                children: [
+                  LoginScreen(),
+                  CreateAcc(),
+                ],
+              ),
             ),
-            //color: Colors.white,
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  new MaterialPageRoute(builder: (context) => HomeScreen()),
-                  (route) => false);
-            },
           ),
-          
-          Container(
-            height: 1,
-            width: ScreenUtil().setWidth(375),
-            color: Colors.black.withOpacity(0.1)
-          ),
-          
-          FlatButton(
-            color: Colors.white,
-            child: Container(
-              child: Text("Create account"),
-              width: ScreenUtil().setWidth(200),
-              height: ScreenUtil().setHeight(50),
-              alignment: Alignment.center,
-            ),
-            //color: Colors.white,
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  new MaterialPageRoute(builder: (context) => HomeScreen()),
-                  (route) => false);
-            },
-          ),
-          
-          /* Container(
-            height: 1,
-            width: ScreenUtil().setWidth(375),
-            color: Colors.black.withOpacity(0.1)
-          ), */
-          
           Card(
-            
             child: FlatButton(
-              color: Color(0xffF8EA6D),
+              //color: Color(0xffF8EA6D),
               child: Container(
                 child: Text("Continue as Guest"),
                 width: ScreenUtil().setWidth(410),
@@ -149,13 +111,6 @@ class _LoadingState extends State<Loading> {
               },
             ),
           ),
-          
-          /* Container(
-            height: 1,
-            width: ScreenUtil().setWidth(375),
-            color: Colors.black.withOpacity(0.1)
-          ), */
-          
         ],
       ),
     );
