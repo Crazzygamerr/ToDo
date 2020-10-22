@@ -87,6 +87,8 @@ class _LoadingState extends State<Loading> {
               width: ScreenUtil().setWidth(410),
               height: ScreenUtil().setHeight(400),
               child: PageView(
+                controller: pageCon,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   LoginScreen(),
                   CreateAcc(),
