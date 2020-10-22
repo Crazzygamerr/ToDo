@@ -1,5 +1,6 @@
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
+import 'package:ToDo/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -91,36 +92,7 @@ class _CreateAccState extends State<CreateAcc> {
                   obscureText: true,
                   textAlign: TextAlign.start,
                   onEditingComplete: () {
-                    FocusNode().unfocus();
-                    auth
-                        .createUserWithEmailAndPassword(
-                            email: emailCon.text, password: passCon.text)
-                        .then((value) {
-                      FirebaseFirestore.instance
-                          .collection("Users")
-                          .doc(emailCon.text)
-                          .set(
-                            {
-                              "Create Date": DateTime.now(),
-                            }
-                          );
-                      FirebaseFirestore.instance
-                          .collection("Users")
-                          .doc(emailCon.text)
-                          .collection("ToDo Lists")
-                          .add({
-                        "title": "Hey There!",
-                        "content": "",
-                      }).then((value) {
-                        Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                        ));
-                      });
-                    }).catchError((onError) {
-                      _formKey2.currentState.validate();
-                    });
+                    loginFunc();
                   },
                   validator: (value) {
                     return "Password is invalid.";
@@ -149,7 +121,7 @@ class _CreateAccState extends State<CreateAcc> {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
-                  //pushOTP();
+                  loginFunc();
                 },
               ),
             ),
@@ -185,5 +157,34 @@ class _CreateAccState extends State<CreateAcc> {
         ),
       ),
     );
+  }
+
+  loginFunc() {
+    FocusNode().unfocus();
+    auth
+        .createUserWithEmailAndPassword(
+            email: emailCon.text, password: passCon.text)
+        .then((value) {
+      FirebaseFirestore.instance.collection("Users").doc(emailCon.text).set({
+        "Create Date": DateTime.now(),
+      });
+      FirebaseFirestore.instance
+          .collection("Users")
+          .doc(emailCon.text)
+          .collection("ToDo Lists")
+          .add({
+        "title": "Hey There!",
+        "content": "",
+      }).then((value) {
+        SharedPref.setUserLogin(emailCon.text, true);
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) => HomeScreen(),
+            ));
+      });
+    }).catchError((onError) {
+      _formKey2.currentState.validate();
+    });
   }
 }

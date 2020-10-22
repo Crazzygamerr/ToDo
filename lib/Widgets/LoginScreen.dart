@@ -1,5 +1,6 @@
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
+import 'package:ToDo/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           email: emailCon.text, password: passCon.text)
                       .then((value) {
                     FocusScope.of(context).unfocus();
+                    SharedPref.setUserLogin(emailCon.text, true);
                     Navigator.push(
                         context,
                         new MaterialPageRoute(
@@ -136,6 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         email: emailCon.text, password: passCon.text)
                     .then((value) {
                   FocusScope.of(context).unfocus();
+                  SharedPref.setUserLogin(emailCon.text, true);
                   Navigator.push(
                       context,
                       new MaterialPageRoute(
