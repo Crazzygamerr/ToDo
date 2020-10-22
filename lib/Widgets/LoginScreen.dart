@@ -1,4 +1,4 @@
-import 'package:ToDo/Auth.dart';
+import 'package:ToDo/HomeScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       .doc(emailCon.text)
                       .get()
                       .then((value) {
-                    if (value.exists) 
+                    if (value.exists)
                       node2.requestFocus();
                     else
                       _formKey1.currentState.validate();
@@ -85,21 +85,22 @@ class _LoginScreenState extends State<LoginScreen> {
               child: TextFormField(
                 controller: passCon,
                 focusNode: node2,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.visiblePassword,
+                obscureText: true,
                 textAlign: TextAlign.start,
                 onEditingComplete: () {
-                  _formKey2.currentState.validate();
-                },
-                validator: (value) {
                   auth
                       .signInWithEmailAndPassword(
                           email: emailCon.text, password: passCon.text)
                       .then((value) {
-                    return "Signed in";
-                  }).catchError(() {
-                    return "Could not sign in";
+                    FocusScope.of(context).unfocus();
+                    Navigator.push(context, new MaterialPageRoute(builder: (context) => HomeScreen(),));
+                  }).catchError((onError) {
+                    _formKey2.currentState.validate();
                   });
-                  return "Could not sign in";
+                },
+                validator: (value) {
+                  return "Password is incorrect";
                 },
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -150,8 +151,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.start,
                   ),
                   onTap: () {
+                    auth
+                      .signInWithEmailAndPassword(
+                          email: emailCon.text, password: passCon.text)
+                      .then((value) {
                     FocusScope.of(context).unfocus();
-                    //pageCon.jumpToPage(0);
+                    Navigator.push(context, new MaterialPageRoute(builder: (context) => HomeScreen(),));
+                  }).catchError((onError) {
+                    _formKey2.currentState.validate();
+                  });
                   },
                 ),
               ],
