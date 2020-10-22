@@ -75,20 +75,21 @@ class _LoadingState extends State<Loading> {
           ),
           
           SizedBox(
-            height: ScreenUtil().setHeight(75)
+            height: ScreenUtil().setHeight(175)
           ),
           
           Container(
             height: 1,
-            width: ScreenUtil().setWidth(410),
-            color: Colors.grey
+            width: ScreenUtil().setWidth(375),
+            color: Colors.black.withOpacity(0.1)
           ),
           
-          RaisedButton(
+          FlatButton(
             color: Colors.white,
             child: Container(
               child: Text("Log in with email"),
               width: ScreenUtil().setWidth(200),
+              height: ScreenUtil().setHeight(50),
               alignment: Alignment.center,
             ),
             //color: Colors.white,
@@ -102,15 +103,16 @@ class _LoadingState extends State<Loading> {
           
           Container(
             height: 1,
-            width: ScreenUtil().setWidth(410),
-            color: Colors.grey
+            width: ScreenUtil().setWidth(375),
+            color: Colors.black.withOpacity(0.1)
           ),
           
-          RaisedButton(
+          FlatButton(
             color: Colors.white,
             child: Container(
               child: Text("Create account"),
               width: ScreenUtil().setWidth(200),
+              height: ScreenUtil().setHeight(50),
               alignment: Alignment.center,
             ),
             //color: Colors.white,
@@ -122,33 +124,37 @@ class _LoadingState extends State<Loading> {
             },
           ),
           
-          Container(
+          /* Container(
             height: 1,
-            width: ScreenUtil().setWidth(410),
-            color: Colors.grey
-          ),
+            width: ScreenUtil().setWidth(375),
+            color: Colors.black.withOpacity(0.1)
+          ), */
           
-          RaisedButton(
-            color: Colors.white,
-            child: Container(
-              child: Text("Continue as Guest"),
-              width: ScreenUtil().setWidth(200),
-              alignment: Alignment.center,
+          Card(
+            
+            child: FlatButton(
+              color: Color(0xffF8EA6D),
+              child: Container(
+                child: Text("Continue as Guest"),
+                width: ScreenUtil().setWidth(410),
+                height: ScreenUtil().setHeight(50),
+                alignment: Alignment.center,
+              ),
+              //color: Colors.white,
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    new MaterialPageRoute(builder: (context) => HomeScreen()),
+                    (route) => false);
+              },
             ),
-            //color: Colors.white,
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  new MaterialPageRoute(builder: (context) => HomeScreen()),
-                  (route) => false);
-            },
           ),
           
-          Container(
+          /* Container(
             height: 1,
-            width: ScreenUtil().setWidth(410),
-            color: Colors.grey
-          ),
+            width: ScreenUtil().setWidth(375),
+            color: Colors.black.withOpacity(0.1)
+          ), */
           
         ],
       ),
