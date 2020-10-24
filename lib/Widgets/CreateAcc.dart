@@ -1,3 +1,4 @@
+import 'package:ToDo/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
 import 'package:ToDo/Shared_pref.dart';
@@ -12,10 +13,13 @@ class CreateAcc extends StatefulWidget {
 }
 
 class _CreateAccState extends State<CreateAcc> {
+  
   TextEditingController emailCon = new TextEditingController(text: "");
   TextEditingController passCon = new TextEditingController(text: "");
+  
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
+  
   FocusNode node1 = new FocusNode();
   FocusNode node2 = new FocusNode();
 
@@ -159,7 +163,7 @@ class _CreateAccState extends State<CreateAcc> {
     );
   }
 
-  loginFunc() {
+  loginFunc() async {
     FocusNode().unfocus();
     auth
         .createUserWithEmailAndPassword(
@@ -177,14 +181,27 @@ class _CreateAccState extends State<CreateAcc> {
         "content": "",
       }).then((value) {
         SharedPref.setUserLogin(emailCon.text, true);
+        _insert();
         Navigator.push(
             context,
             new MaterialPageRoute(
               builder: (context) => HomeScreen(),
-            ));
+            )
+        );
       });
     }).catchError((onError) {
       _formKey2.currentState.validate();
     });
+    
   }
+  
+  void _insert() async {
+    final dbHelper = DatabaseHelper.instance;
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnTitle: 'Hey there!',
+      DatabaseHelper.columnContent  : ""
+    };
+    await dbHelper.insert(row);
+  }
+  
 }

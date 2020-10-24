@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:ToDo/Shared_pref.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,8 +14,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  
   Stream list;
   String email;
+  bool conn = false;
 
   CollectionReference collectionReference;
 
@@ -23,6 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
         list = value;
       });
     });
+    Connectivity().onConnectivityChanged.listen((event) {
+            getInternet();
+        });
     super.initState();
   }
 
@@ -35,6 +43,33 @@ class _HomeScreenState extends State<HomeScreen> {
     return collectionReference
         .snapshots();
   }
+  
+  getInternet() async {
+        try {
+            final result = await InternetAddress.lookup('google.com');
+            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+                conn = true;
+            }
+        } on SocketException catch (_) {
+            conn = false;
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                  title: Text("Internet connection lost."),
+                  content: Text("Notes will not be synced"),
+                  actions: [
+                      FlatButton(
+                          child: Text("Exit"),
+                          onPressed: (){
+                              Navigator.pop(context);
+                          },
+                      )
+                  ],
+              ),
+              barrierDismissible: false,
+          );
+        }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: list,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          
           if (!snapshot.hasData ||
               snapshot.hasError ||
               snapshot.connectionState == ConnectionState.waiting) {
+                
             return Center(
               child: Container(
                 width: ScreenUtil().setWidth(20),
@@ -59,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: CircularProgressIndicator(),
               ),
             );
+            
           } else {
             return Column(
               children: [

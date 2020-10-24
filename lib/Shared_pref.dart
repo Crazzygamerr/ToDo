@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
+  
   static const String login = "login";
   static const String emailKey = "email";
 
@@ -34,5 +35,7 @@ class SharedPref {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     return pref.getString(emailKey);
   }
+  
+  
   
 }

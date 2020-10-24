@@ -1,3 +1,4 @@
+import 'package:ToDo/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
 import 'package:ToDo/Shared_pref.dart';
@@ -12,10 +13,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
   TextEditingController emailCon = new TextEditingController(text: "");
   TextEditingController passCon = new TextEditingController(text: "");
+  
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
+  
   FocusNode node1 = new FocusNode();
   FocusNode node2 = new FocusNode();
 
@@ -133,12 +137,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                auth
-                    .signInWithEmailAndPassword(
-                        email: emailCon.text, password: passCon.text)
+                auth.signInWithEmailAndPassword(
+                        email: emailCon.text, 
+                        password: passCon.text)
                     .then((value) {
                   FocusScope.of(context).unfocus();
                   SharedPref.setUserLogin(emailCon.text, true);
+                  FirebaseFirestore.instance
+                    .collection("Users")
+                    .doc(emailCon.text)
+                    .collection("ToDo Lists")
+                    .get().then((value) {
+                      
+                      value.docs.forEach((element) {
+                        _insert(element.data()['title'], element.data()['content']);
+                       });
+                      
+                  });
                   Navigator.push(
                       context,
                       new MaterialPageRoute(
@@ -182,4 +197,14 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  
+  void _insert(String title, String content) async {
+    final dbHelper = DatabaseHelper.instance;
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnTitle: title,
+      DatabaseHelper.columnContent  : content
+    };
+    await dbHelper.insert(row);
+  }
+  
 }
