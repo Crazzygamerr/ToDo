@@ -25,8 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
+  final dbHelper = DatabaseHelper.instance;
+
   @override
   Widget build(BuildContext context) {
+
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
 
@@ -57,9 +60,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       .doc(emailCon.text)
                       .get()
                       .then((value) {
-                    if (value.exists)
+                    if (value.exists) {
                       node2.requestFocus();
-                    else
+                      return null;
+                    } else
                       _formKey1.currentState.validate();
                   });
                 },
@@ -95,20 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 textAlign: TextAlign.start,
                 onEditingComplete: () {
-                  auth
-                      .signInWithEmailAndPassword(
-                          email: emailCon.text, password: passCon.text)
-                      .then((value) {
-                    FocusScope.of(context).unfocus();
-                    SharedPref.setUserLogin(emailCon.text, true);
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
-                        ));
-                  }).catchError((onError) {
-                    _formKey2.currentState.validate();
-                  });
+                  loginFunc();
                 },
                 validator: (value) {
                   return "Password is incorrect";
@@ -137,31 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                auth.signInWithEmailAndPassword(
-                        email: emailCon.text, 
-                        password: passCon.text)
-                    .then((value) {
-                  FocusScope.of(context).unfocus();
-                  SharedPref.setUserLogin(emailCon.text, true);
-                  FirebaseFirestore.instance
-                    .collection("Users")
-                    .doc(emailCon.text)
-                    .collection("ToDo Lists")
-                    .get().then((value) {
-                      
-                      value.docs.forEach((element) {
-                        _insert(element.data()['title'], element.data()['content']);
-                       });
-                      
-                  });
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
-                      ));
-                }).catchError((onError) {
-                  _formKey2.currentState.validate();
-                });
+                loginFunc();
               },
             ),
           ),
@@ -198,13 +165,46 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
   
-  void _insert(String title, String content) async {
-    final dbHelper = DatabaseHelper.instance;
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnTitle: title,
-      DatabaseHelper.columnContent  : content
-    };
+  Future _insertMap(QuerySnapshot value) async {
+    value.docs.forEach((element) {
+      Map<String, dynamic> row = {
+        DatabaseHelper.columnTitle: element.data()['title'],
+        DatabaseHelper.columnContent: element.data()['content']
+      };
+      _insert(row);
+    });
+
+  }
+
+  _insert(Map<String, dynamic> row) async {
     await dbHelper.insert(row);
+  }
+  
+  void loginFunc() async {
+    auth.signInWithEmailAndPassword(
+          email: emailCon.text, 
+          password: passCon.text)
+      .then((value) {
+        FocusScope.of(context).unfocus();
+        dbHelper.drop();
+        //dbHelper.checkTable();
+        FirebaseFirestore.instance
+            .collection("Users")
+            .doc(emailCon.text)
+            .collection("todo")
+            .get().then((value) {
+          _insertMap(value);
+        });
+        SharedPref.setUserLogin(emailCon.text, true).then((value) {
+          Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ));
+        });
+  }).catchError((onError) {
+    _formKey2.currentState.validate();
+  });
   }
   
 }

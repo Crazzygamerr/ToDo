@@ -165,23 +165,22 @@ class _CreateAccState extends State<CreateAcc> {
 
   loginFunc() async {
     FocusNode().unfocus();
-    auth
-        .createUserWithEmailAndPassword(
+    auth.createUserWithEmailAndPassword(
             email: emailCon.text, password: passCon.text)
         .then((value) {
+      _insert();
       FirebaseFirestore.instance.collection("Users").doc(emailCon.text).set({
         "Create Date": DateTime.now(),
       });
       FirebaseFirestore.instance
           .collection("Users")
           .doc(emailCon.text)
-          .collection("ToDo Lists")
+          .collection("todo")
           .add({
         "title": "Hey There!",
         "content": "",
       }).then((value) {
         SharedPref.setUserLogin(emailCon.text, true);
-        _insert();
         Navigator.push(
             context,
             new MaterialPageRoute(

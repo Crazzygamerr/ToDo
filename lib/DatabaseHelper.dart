@@ -20,6 +20,9 @@ class DatabaseHelper {
   static Database _database;
 
   Future<Database> get database async {
+    
+    //printTable();
+    
     if(_database != null)
       return _database;
 
@@ -40,7 +43,7 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE $table (
-        $columnId INTEGER PRIMARY KEY,
+        $columnId INTEGER,
         $columnTitle STRING,
         $columnContent STRING
       )
@@ -49,18 +52,30 @@ class DatabaseHelper {
   
   Future<int> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
+    int id = await queryRowCount();
+    row[columnId] = id;
     return await db.insert(table, row);
   }
   
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    return await db.query(table);
+    var x = await db.query(table);
+    if(x != null)
+      return x;
+    else
+      return [
+        {
+          "_id": 0,
+          "title": "not null test",
+          "content": ""
+        }
+      ];
   }
   
-  Future<int> update(Map<String, dynamic> row) async {
+  Future update(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row[columnId];
-    return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
   }
   
   Future<int> delete(int id) async {
@@ -70,7 +85,19 @@ class DatabaseHelper {
   
   Future drop() async {
     Database db = await instance.database;
-    await db.execute("DROP TABLE IF EXISTS $table");
+    await db.execute("DROP TABLE $table");
+    _onCreate(db, _databaseVersion);
+  }
+  
+  Future printTable() async {
+    Database db = await instance.database;
+    var x = await queryAllRows();
+    print(x);    
+  }
+
+  Future<int> queryRowCount() async {
+    Database db = await instance.database;
+    return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
   }
 
 }

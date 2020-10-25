@@ -1,3 +1,4 @@
+import 'package:ToDo/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Todo',
+      title: 'todo',
       debugShowCheckedModeBanner: false,
       home: Loading(),
     );
@@ -63,7 +64,7 @@ class _LoadingState extends State<Loading> {
                 padding:
                     EdgeInsets.fromLTRB(0, ScreenUtil().setHeight(20), 0, 0),
                 child: Text(
-                  "Todo",
+                  "todo",
                   style:
                       GoogleFonts.comicNeue(fontSize: ScreenUtil().setSp(75)),
                 ),
@@ -107,10 +108,11 @@ class _LoadingState extends State<Loading> {
               ),
               //color: Colors.white,
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
+                _insert();
+                /*Navigator.pushAndRemoveUntil(
                     context,
                     new MaterialPageRoute(builder: (context) => HomeScreen()),
-                    (route) => false);
+                    (route) => false);*/
               },
             ),
           ),
@@ -118,4 +120,14 @@ class _LoadingState extends State<Loading> {
       ),
     );
   }
+
+  void _insert() async {
+    final dbHelper = DatabaseHelper.instance;
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnTitle: 'Hey there!',
+      DatabaseHelper.columnContent  : ""
+    };
+    await dbHelper.insert(row);
+  }
+
 }
