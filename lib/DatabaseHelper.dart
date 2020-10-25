@@ -50,11 +50,12 @@ class DatabaseHelper {
     ''');
   }
   
-  Future<int> insert(Map<String, dynamic> row) async {
+  Future insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = await queryRowCount();
     row[columnId] = id;
-    return await db.insert(table, row);
+    await db.insert(table, row);
+    printTable();
   }
   
   Future<List<Map<String, dynamic>>> queryAllRows() async {

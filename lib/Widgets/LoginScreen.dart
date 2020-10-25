@@ -164,38 +164,26 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  
-  Future _insertMap(QuerySnapshot value) async {
-    value.docs.forEach((element) {
-      Map<String, dynamic> row = {
-        DatabaseHelper.columnTitle: element.data()['title'],
-        DatabaseHelper.columnContent: element.data()['content']
-      };
-      _insert(row);
-    });
 
-  }
-
-  _insert(Map<String, dynamic> row) async {
-    await dbHelper.insert(row);
-  }
-  
   void loginFunc() async {
+    FocusScope.of(context).unfocus();
     auth.signInWithEmailAndPassword(
           email: emailCon.text, 
           password: passCon.text)
       .then((value) {
-        FocusScope.of(context).unfocus();
-        dbHelper.drop();
-        //dbHelper.checkTable();
-        FirebaseFirestore.instance
-            .collection("Users")
-            .doc(emailCon.text)
-            .collection("todo")
-            .get().then((value) {
-          _insertMap(value);
+      FirebaseFirestore.instance
+              .collection("Users")
+              .doc(emailCon.text)
+              .collection("todo")
+              .get().then((value) {
+        value.docs.forEach((element) {
+          _insert(
+            element.data()['title'],
+            element.data()['content']
+          );
         });
-        SharedPref.setUserLogin(emailCon.text, true).then((value) {
+      });
+      SharedPref.setUserLogin(emailCon.text, true).then((value) {
           Navigator.push(
                   context,
                   new MaterialPageRoute(
@@ -206,5 +194,13 @@ class _LoginScreenState extends State<LoginScreen> {
     _formKey2.currentState.validate();
   });
   }
-  
+
+  Future _insert(String title, String content) async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnTitle: title,
+      DatabaseHelper.columnContent: content
+    };
+    await dbHelper.insert(row);
+  }
+
 }

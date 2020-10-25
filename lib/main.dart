@@ -1,6 +1,7 @@
 import 'package:ToDo/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Provider.dart';
+import 'package:ToDo/Shared_pref.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
 import 'package:ToDo/Widgets/LoginScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -109,10 +110,13 @@ class _LoadingState extends State<Loading> {
               //color: Colors.white,
               onPressed: () {
                 _insert();
-                /*Navigator.pushAndRemoveUntil(
-                    context,
-                    new MaterialPageRoute(builder: (context) => HomeScreen()),
-                    (route) => false);*/
+                SharedPref.setUserLogin("guest", true).then((value) {
+                  Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ));
+                });
               },
             ),
           ),
@@ -121,7 +125,7 @@ class _LoadingState extends State<Loading> {
     );
   }
 
-  void _insert() async {
+  _insert() async {
     final dbHelper = DatabaseHelper.instance;
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',

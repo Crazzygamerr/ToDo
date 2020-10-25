@@ -41,36 +41,15 @@ class _NoteScreenState extends State<NoteScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        titleNode.unfocus();
-        contentNode.unfocus();
-        if(widget.snapshot != null) {
-          widget.snapshot.reference
-              .update({"title": titleCon.text, "content": contentCon.text});
-        } else {
-          dbHelper.update({
-            DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
-            DatabaseHelper.columnTitle: titleCon.text,
-            DatabaseHelper.columnContent: contentCon.text
-          });
-        }
+        await save();
         return true;
       },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
-              titleNode.unfocus();
-              contentNode.unfocus();
-              if(widget.snapshot != null) {
-                widget.snapshot.reference
-                    .update({"title": titleCon.text, "content": contentCon.text}).then((value) => Navigator.pop(context));
-              } else {
-                dbHelper.update({
-                  DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
-                  DatabaseHelper.columnTitle: titleCon.text,
-                  DatabaseHelper.columnContent: contentCon.text
-                }).then((value) => Navigator.pop(context));
-              }
+              save();
+              Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back),
           ),
@@ -95,7 +74,7 @@ class _NoteScreenState extends State<NoteScreen> {
             child: TextFormField(
               keyboardType: TextInputType.multiline,
               maxLines: null,
-              minLines: 30,
+              //minLines: 30,
               controller: contentCon,
               focusNode: contentNode,
               /* style: TextStyle(
@@ -115,4 +94,20 @@ class _NoteScreenState extends State<NoteScreen> {
       ),
     );
   }
+
+  Future save() async {
+    titleNode.unfocus();
+    contentNode.unfocus();
+    if(widget.snapshot != null) {
+      widget.snapshot.reference
+              .update({"title": titleCon.text, "content": contentCon.text});
+    }
+    await dbHelper.update({
+      DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
+      DatabaseHelper.columnTitle: titleCon.text,
+      DatabaseHelper.columnContent: contentCon.text
+    });
+
+  }
+
 }
