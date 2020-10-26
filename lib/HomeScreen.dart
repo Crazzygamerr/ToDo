@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ToDo/DatabaseHelper.dart';
-import 'package:ToDo/Shared_pref.dart';
+import 'package:ToDo/Utility/DatabaseHelper.dart';
+import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:ToDo/main.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -142,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text("Log out"),
                   onPressed: () {
                     dbHelper.drop();
+                    SharedPref.setUserLogin(false);
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
                 ),

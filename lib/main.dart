@@ -1,7 +1,7 @@
-import 'package:ToDo/DatabaseHelper.dart';
+import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
-import 'package:ToDo/Provider.dart';
-import 'package:ToDo/Shared_pref.dart';
+import 'package:ToDo/Utility/Provider.dart';
+import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
 import 'package:ToDo/Widgets/LoginScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,13 +33,34 @@ class Loading extends StatefulWidget {
 }
 
 class _LoadingState extends State<Loading> {
+
   PageController pageCon = new PageController(initialPage: 0);
-  bool b = false;
+  bool load = false;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPref.getUserLogin().then((value) {
+      if(value){
+        Navigator.pushAndRemoveUntil(
+                context,
+                new MaterialPageRoute(
+                        builder: (context) => HomeScreen()
+                ), (route) => false);
+      } else {
+        setState(() {
+          load = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
@@ -82,43 +103,64 @@ class _LoadingState extends State<Loading> {
           SizedBox(
             height: ScreenUtil().setHeight(125),
           ),
-          Provider(
-          pageCon: pageCon,
-            child: Container(
-              //color: Colors.blue,
-              width: ScreenUtil().setWidth(410),
-              height: ScreenUtil().setHeight(400),
-              child: PageView(
-                controller: pageCon,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  LoginScreen(),
-                  CreateAcc(),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: FlatButton(
-              //color: Color(0xffF8EA6D),
-              child: Container(
-                child: Text("Continue as Guest"),
-                width: ScreenUtil().setWidth(410),
-                height: ScreenUtil().setHeight(50),
-                alignment: Alignment.center,
-              ),
-              //color: Colors.white,
-              onPressed: () {
-                _insert();
-                SharedPref.setUserLogin("guest", true).then((value) {
-                  Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ));
-                });
-              },
-            ),
+          StatefulBuilder(
+            builder: (context, setLoad) {
+
+              if(!load) {
+                  return Center(
+                    child: Container(
+                      width: ScreenUtil().setWidth(20),
+                      height: ScreenUtil().setWidth(20),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+              } else {
+                return Container(
+                  child: Column(
+                    children: [
+                      Provider(
+                        pageCon: pageCon,
+                        child: Container(
+                          //color: Colors.blue,
+                          width: ScreenUtil().setWidth(410),
+                          height: ScreenUtil().setHeight(400),
+                          child: PageView(
+                            controller: pageCon,
+                            physics: NeverScrollableScrollPhysics(),
+                            children: [
+                              LoginScreen(),
+                              CreateAcc(),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Card(
+                        child: FlatButton(
+                          //color: Color(0xffF8EA6D),
+                          child: Container(
+                            child: Text("Continue as Guest"),
+                            width: ScreenUtil().setWidth(410),
+                            height: ScreenUtil().setHeight(50),
+                            alignment: Alignment.center,
+                          ),
+                          //color: Colors.white,
+                          onPressed: () {
+                            _insert();
+                            SharedPref.setUser("guest", true).then((value) {
+                              Navigator.pushAndRemoveUntil(
+                                      context,
+                                      new MaterialPageRoute(
+                                              builder: (context) => HomeScreen()
+                                      ), (route) => false);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            }
           ),
         ],
       ),

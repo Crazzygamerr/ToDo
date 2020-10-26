@@ -1,7 +1,7 @@
-import 'package:ToDo/DatabaseHelper.dart';
+import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
-import 'package:ToDo/Provider.dart';
-import 'package:ToDo/Shared_pref.dart';
+import 'package:ToDo/Utility/Provider.dart';
+import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -183,12 +183,12 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         });
       });
-      SharedPref.setUserLogin(emailCon.text, true).then((value) {
-          Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ));
+      SharedPref.setUser(emailCon.text, true).then((value) {
+        Navigator.pushAndRemoveUntil(
+                context,
+                new MaterialPageRoute(
+                        builder: (context) => HomeScreen()
+                ), (route) => false);
         });
   }).catchError((onError) {
     _formKey2.currentState.validate();
