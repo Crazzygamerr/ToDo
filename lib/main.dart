@@ -173,7 +173,7 @@ class _LoadingState extends State<Loading> {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : ""
     };
-    await dbHelper.insert(row);
+    await dbHelper.add(row);
   }
 
 }

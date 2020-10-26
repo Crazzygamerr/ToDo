@@ -50,12 +50,16 @@ class DatabaseHelper {
     ''');
   }
   
-  Future insert(Map<String, dynamic> row) async {
+  Future add(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = await queryRowCount();
     row[columnId] = id;
     await db.insert(table, row);
-    printTable();
+  }
+
+  Future insert(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    await db.insert(table, row);
   }
   
   Future<List<Map<String, dynamic>>> queryAllRows() async {
@@ -91,7 +95,6 @@ class DatabaseHelper {
   }
   
   Future printTable() async {
-    Database db = await instance.database;
     var x = await queryAllRows();
     print(x);    
   }

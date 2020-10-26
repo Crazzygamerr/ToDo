@@ -166,18 +166,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void loginFunc() async {
+    //TODO: Change email and pass
     FocusScope.of(context).unfocus();
     auth.signInWithEmailAndPassword(
-          email: emailCon.text, 
-          password: passCon.text)
+          email: "test1@test.com",
+          password: "123456")
       .then((value) {
       FirebaseFirestore.instance
               .collection("Users")
               .doc(emailCon.text)
               .collection("todo")
+              .orderBy("id")
               .get().then((value) {
         value.docs.forEach((element) {
           _insert(
+            element.data()['id'],
             element.data()['title'],
             element.data()['content']
           );
@@ -195,8 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
   });
   }
 
-  Future _insert(String title, String content) async {
+  Future _insert(int id, String title, String content) async {
     Map<String, dynamic> row = {
+      DatabaseHelper.columnId: id,
       DatabaseHelper.columnTitle: title,
       DatabaseHelper.columnContent: content
     };

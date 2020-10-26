@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection("Users")
         .doc(email)
         .collection("todo");
-    return collectionReference.snapshots();
+    return collectionReference.orderBy("id").snapshots();
   }
   
   getInternet(ConnectivityResult result) async {
@@ -86,26 +86,13 @@ class _HomeScreenState extends State<HomeScreen> {
             conn = false;
           });
         }
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-              title: Text("Internet connection lost."),
-              content: Text("Notes will not be synced"),
-              actions: [
-                  FlatButton(
-                      child: Text("Exit"),
-                      onPressed: (){
-                          Navigator.pop(context);
-                      },
-                  )
-              ],
-          ),
-          barrierDismissible: false,
-      );
     }
   }
 
   getMap() async {
+    setState(() {
+      loadSQL = false;
+    });
     dbHelper.queryAllRows().then((value) {
       if (value.length >= 1) {
         setState(() {
@@ -187,10 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
               if(conn) {
 
                   return Column(
-                  children: [
+                    children: [
                     GestureDetector(
                       onTap: () {
                         collectionReference.add({
+                          "id": notes.length,
                           "title": "",
                           "content": "",
                         });
@@ -235,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, pos) {
                           return GestureDetector(
                             onTap: () {
+                              print(notes[pos]);
                               Navigator.push(
                                   context,
                                   new MaterialPageRoute(
@@ -429,19 +418,29 @@ class _HomeScreenState extends State<HomeScreen> {
       DatabaseHelper.columnTitle: title,
       DatabaseHelper.columnContent: content
     };
-    await dbHelper.insert(row).then((value) => getMap());
+    await dbHelper.add(row);
+    setState(() {
+      notes.add({
+        DatabaseHelper.columnId: notes.length,
+        DatabaseHelper.columnTitle: title,
+        DatabaseHelper.columnContent: content
+      });
+    });
   }
   
   void checkSync(QuerySnapshot snapshot) async {
-    notes = await dbHelper.queryAllRows();
-    /*notes.forEach((element) {
-      print("sql: " + element['title'] + "\t" + element['content']);
-    });
-    collectionReference.get().then((ss) {
-      ss.docs.forEach((element) { 
-        print("firestore: " + element.data()['title'] + "\t" + element.data()['content']);
-      });
-    });*/
+    if(notes.length >= 1) {
+      collectionReference.orderBy("id")
+              .get().then((value) {
+          for(int i=0;i<value.docs.length;i++)
+            if(value.docs[i].data() != notes[value.docs[i].data()['id']]) {
+              collectionReference.doc(value.docs[i].id).update({
+                "title": notes[i]['title'],
+                "content": notes[i]['content']
+              });
+            }
+        });
+    }
   }
   
 }

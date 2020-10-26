@@ -25,7 +25,7 @@ class _NoteScreenState extends State<NoteScreen> {
   
   @override
   void initState() {
-    
+    print(widget.note['_id']);
     if(widget.snapshot != null) {
       titleCon.text = widget.snapshot.data()['title'];
       contentCon.text = widget.snapshot.data()['content'];
