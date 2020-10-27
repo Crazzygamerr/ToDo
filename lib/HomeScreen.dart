@@ -182,7 +182,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           "title": "",
                           "content": "",
                         });
-                        _insert("", "");
+                        _insert("", "").then((value) {
+                          Navigator.push(
+                                  context,
+                                  new MaterialPageRoute(
+                                    builder: (context) => NoteScreen(
+                                      snapshot: snapshot.data.docs[notes.length],
+                                      note: {
+                                        DatabaseHelper.columnId: notes.length-1,
+                                        DatabaseHelper.columnTitle: "",
+                                        DatabaseHelper.columnContent: ""
+                                      },
+                                    ),
+                                  )).then((value) {
+                            getMap();
+                          });
+                        });
                       },
                       child: Container(
                         //color: Colors.yellow,
@@ -223,7 +238,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, pos) {
                           return GestureDetector(
                             onTap: () {
-                              print(notes[pos]);
                               Navigator.push(
                                   context,
                                   new MaterialPageRoute(
@@ -231,7 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       snapshot: snapshot.data.docs[pos],
                                       note: notes[pos],
                                     ),
-                                  ));
+                                  )).then((value) {
+                                getMap();
+                              });
                             },
                             child: Card(
                               child: Container(
@@ -295,7 +311,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _insert("", "");
+                      _insert("", "").then((value) {
+                        Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                  builder: (context) => NoteScreen(
+                                    note: {
+                                      DatabaseHelper.columnId: notes.length-1,
+                                      DatabaseHelper.columnTitle: "",
+                                      DatabaseHelper.columnContent: ""
+                                    },
+                                  ),
+                                )).then((value) {
+                          getMap();
+                        });
+                      });
                     },
                     child: Container(
                       //color: Colors.yellow,
@@ -420,11 +450,17 @@ class _HomeScreenState extends State<HomeScreen> {
     };
     await dbHelper.add(row);
     setState(() {
-      notes.add({
+      notes.insert(notes.length,{
         DatabaseHelper.columnId: notes.length,
         DatabaseHelper.columnTitle: title,
         DatabaseHelper.columnContent: content
-      });
+      }
+      );
+      /*notes.add({
+        DatabaseHelper.columnId: notes.length,
+        DatabaseHelper.columnTitle: title,
+        DatabaseHelper.columnContent: content
+      });*/
     });
   }
   

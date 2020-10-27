@@ -25,7 +25,7 @@ class _NoteScreenState extends State<NoteScreen> {
   
   @override
   void initState() {
-    print(widget.note['_id']);
+    print(widget.note);
     if(widget.snapshot != null) {
       titleCon.text = widget.snapshot.data()['title'];
       contentCon.text = widget.snapshot.data()['content'];
@@ -42,14 +42,13 @@ class _NoteScreenState extends State<NoteScreen> {
     return WillPopScope(
       onWillPop: () async {
         await save();
-        return true;
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
               save();
-              Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back),
           ),
@@ -106,6 +105,8 @@ class _NoteScreenState extends State<NoteScreen> {
       DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
       DatabaseHelper.columnTitle: titleCon.text,
       DatabaseHelper.columnContent: contentCon.text
+    }).then((value) {
+      Navigator.pop(context);
     });
 
   }

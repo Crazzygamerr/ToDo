@@ -64,9 +64,9 @@ class DatabaseHelper {
   
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
-    var x = await db.query(table);
+    List<Map<String, dynamic>> x = await db.query(table);
     if(x != null)
-      return x;
+      return List.from(x);
     else
       return [
         {
