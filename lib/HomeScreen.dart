@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:intl/intl.dart';
 
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
+
   Stream list;
   String email;
   bool conn = false;
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection("todo");
     return collectionReference.orderBy("id").snapshots();
   }
-  
+
   getInternet(ConnectivityResult result) async {
     bool real;
     await auth.createUserWithEmailAndPassword(email: "test@test.com", password: "testString")
@@ -94,13 +95,15 @@ class _HomeScreenState extends State<HomeScreen> {
       loadSQL = false;
     });
     dbHelper.queryAllRows().then((value) {
-      if (value.length >= 1) {
-        setState(() {
-          notes = value;
-          loadSQL = true;
+      setState(() {
+        notes = value;
+        loadSQL = true;
+      });
+      if (!(value.length >= 1)) {
+        Future.delayed(Duration(seconds: 5)).then((value) {
+          if(mounted)
+            getMap();
         });
-      } else {
-        Future.delayed(Duration(seconds: 5)).then((value) => getMap());
       }
 
     });
@@ -169,35 +172,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
 
-            } else {
+            } else if(notes.length == 0) {
+              return Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
 
-              if(conn) {
-
-                  return Column(
-                    children: [
+                    (!conn)?Container(
+                      height: ScreenUtil().setHeight(40),
+                      width: ScreenUtil().setWidth(411),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(1),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.wifi_off,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: ScreenUtil().setWidth(10),
+                          ),
+                          Text(
+                            (email == "guest")?"Log in to sync notes.":"No internet connection",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                    color: Colors.white
+                            ),
+                          ),
+                        ],
+                      ),
+                    ):Container(),
                     GestureDetector(
                       onTap: () {
-                        collectionReference.add({
-                          "id": notes.length,
-                          "title": "",
-                          "content": "",
-                        });
-                        _insert("", "").then((value) {
-                          Navigator.push(
-                                  context,
-                                  new MaterialPageRoute(
-                                    builder: (context) => NoteScreen(
-                                      snapshot: snapshot.data.docs[notes.length],
-                                      note: {
-                                        DatabaseHelper.columnId: notes.length-1,
-                                        DatabaseHelper.columnTitle: "",
-                                        DatabaseHelper.columnContent: ""
-                                      },
-                                    ),
-                                  )).then((value) {
-                            getMap();
-                          });
-                        });
+                        _insert();
                       },
                       child: Container(
                         //color: Colors.yellow,
@@ -210,8 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: ScreenUtil().setWidth(10),
                             ),
                             Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                  0, 0, ScreenUtil().setWidth(12), 0),
+                              padding: EdgeInsets.fromLTRB(0, 0, ScreenUtil().setWidth(12), 0),
                               child: Icon(
                                 Icons.add,
                                 color: Colors.blue,
@@ -229,103 +239,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    Container(
-                      height: ScreenUtil().setHeight(725),
-                      //color: Colors.yellow,
-                      //width: Screen,
-                      child: ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        itemBuilder: (context, pos) {
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  new MaterialPageRoute(
-                                    builder: (context) => NoteScreen(
-                                      snapshot: snapshot.data.docs[pos],
-                                      note: notes[pos],
-                                    ),
-                                  )).then((value) {
-                                getMap();
-                              });
-                            },
-                            child: Card(
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(
-                                    ScreenUtil().setWidth(20),
-                                    ScreenUtil().setHeight(10),
-                                    ScreenUtil().setWidth(20),
-                                    ScreenUtil().setHeight(10)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            snapshot.data.docs[pos].data()['title'],
-                                            style: TextStyle(fontSize: 20),
-                                          ),
-                                          Text(
-                                            snapshot.data.docs[pos]
-                                                .data()['content'],
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.black.withOpacity(0.65)),
-                                                overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        collectionReference
-                                            .doc(snapshot.data.docs[pos].id)
-                                            .delete();
-                                      },
-                                      icon: Icon(Icons.delete),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "No notes here!"
+                        ),
                       ),
                     ),
+
                   ],
-                );
+                ),
+              );
+            } else{
 
-              } else {
-
-                return Column(
+              return Column(
                 children: [
-                  Container(
-                    width: ScreenUtil().setWidth(410),
-                    height: ScreenUtil().setHeight(20),
-                    color: Colors.red,
-                  ),
+                  (!conn)?Container(
+                    height: ScreenUtil().setHeight(40),
+                    width: ScreenUtil().setWidth(411),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(1),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.wifi_off,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: ScreenUtil().setWidth(10),
+                        ),
+                        Text(
+                          (email == "guest")?"Log in to sync notes.":"No internet connection",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white
+                          ),
+                        ),
+                      ],
+                    ),
+                  ):Container(),
                   GestureDetector(
                     onTap: () {
-                      _insert("", "").then((value) {
-                        Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                  builder: (context) => NoteScreen(
-                                    note: {
-                                      DatabaseHelper.columnId: notes.length-1,
-                                      DatabaseHelper.columnTitle: "",
-                                      DatabaseHelper.columnContent: ""
-                                    },
-                                  ),
-                                )).then((value) {
-                          getMap();
-                        });
-                      });
+                      _insert(snapshot.data);
                     },
                     child: Container(
                       //color: Colors.yellow,
@@ -338,8 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: ScreenUtil().setWidth(10),
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(
-                                0, 0, ScreenUtil().setWidth(12), 0),
+                            padding: EdgeInsets.fromLTRB(0, 0, ScreenUtil().setWidth(12), 0),
                             child: Icon(
                               Icons.add,
                               color: Colors.blue,
@@ -357,19 +316,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    height: ScreenUtil().setHeight(700),
-                    //color: Colors.yellow,
-                    //width: Screen,
+                  Expanded(
                     child: ListView.builder(
-                      itemCount: notes.length,
+                      itemCount: (conn)?snapshot.data.docs.length:notes.length,
                       itemBuilder: (context, pos) {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(context, new MaterialPageRoute(
-                              builder: (context) => NoteScreen(
-                                      note: notes[pos]),
-                            )).then((value) {
+                            Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                  builder: (context) => NoteScreen(
+                                    snapshot: (conn)?snapshot.data.docs[pos]:null,
+                                    note: notes[pos],
+                                  ),
+                                )).then((value) {
                               getMap();
                             });
                           },
@@ -386,37 +346,55 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Container(
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          width: ScreenUtil().setWidth(310),
-                                          child: Text(
-                                            notes[pos]['title'],
-                                            maxLines: 1,
-                                            softWrap: false,
-                                            overflow: TextOverflow.fade,
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                            ),
-                                          ),
+                                        Text(
+                                          (conn)?snapshot.data.docs[pos].data()['title']:notes[pos]['title'],
+                                          style: TextStyle(fontSize: 20),
                                         ),
-                                        Container(
-                                          width: ScreenUtil().setWidth(310),
-                                          child: Text(
-                                            notes[pos]['content'],
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.black.withOpacity(0.65)),
-                                                overflow: TextOverflow.fade,
+                                        SizedBox(
+                                          height: ScreenUtil().setHeight(5),
+                                        ),
+                                        Text(
+                                          (conn)?(
+                                            (snapshot.data
+                                                    .docs[pos]
+                                                    .data()['date'] == null)?
+                                              snapshot.data
+                                                      .docs[pos]
+                                                      .data()['content']:
+                                            DateFormat.yMd().add_jm().format(
+                                              DateTime.fromMillisecondsSinceEpoch(
+                                                      snapshot.data
+                                                            .docs[pos]
+                                                            .data()['date'].seconds * 1000
+                                              )
+                                            ).toString()
+                                          ):(
+                                            (notes[pos]['date'] == null)?
+                                              notes[pos]['content']:
+                                              DateFormat.yMd().add_jm().format(
+                                                      DateTime.parse(
+                                                              notes[pos]['date']
+                                                      )
+                                              ).toString()
                                           ),
+                                          maxLines: 2,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.black.withOpacity(0.65)),
+                                              overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {
+                                      if (conn) {
+                                        collectionReference
+                                            .doc(snapshot.data.docs[pos].id)
+                                            .delete();
+                                      }
                                       dbHelper.delete(notes[pos][DatabaseHelper.columnId]).then((value) {
                                         getMap();
                                       });
@@ -433,9 +411,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               );
-
-              }
-
             }
           },
         ),
@@ -443,27 +418,47 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future _insert(String title, String content) async {
+  Future _insert([QuerySnapshot snapshot]) async {
+    int p = notes.length;
+    if (conn) {
+      collectionReference.add({
+        "id": p,
+        "title": "",
+        "content": "",
+      });
+    }
     Map<String, dynamic> row = {
-      DatabaseHelper.columnTitle: title,
-      DatabaseHelper.columnContent: content
+      DatabaseHelper.columnTitle: "",
+      DatabaseHelper.columnContent: "",
+      DatabaseHelper.columnDate: null,
     };
     await dbHelper.add(row);
     setState(() {
-      notes.insert(notes.length,{
-        DatabaseHelper.columnId: notes.length,
-        DatabaseHelper.columnTitle: title,
-        DatabaseHelper.columnContent: content
+      notes.insert(p,{
+        DatabaseHelper.columnId: p,
+        DatabaseHelper.columnTitle: "",
+        DatabaseHelper.columnContent: "",
+        DatabaseHelper.columnDate: null,
       }
       );
-      /*notes.add({
-        DatabaseHelper.columnId: notes.length,
-        DatabaseHelper.columnTitle: title,
-        DatabaseHelper.columnContent: content
-      });*/
+    });
+    Navigator.push(
+            context,
+            new MaterialPageRoute(
+              builder: (context) => NoteScreen(
+                snapshot: (conn)?snapshot.docs[p]:null,
+                note: {
+                  DatabaseHelper.columnId: p,
+                  DatabaseHelper.columnTitle: "",
+                  DatabaseHelper.columnContent: "",
+                  DatabaseHelper.columnDate: null,
+                },
+              ),
+            )).then((value) {
+      getMap();
     });
   }
-  
+
   void checkSync(QuerySnapshot snapshot) async {
     if(notes.length >= 1) {
       collectionReference.orderBy("id")
@@ -472,11 +467,12 @@ class _HomeScreenState extends State<HomeScreen> {
             if(value.docs[i].data() != notes[value.docs[i].data()['id']]) {
               collectionReference.doc(value.docs[i].id).update({
                 "title": notes[i]['title'],
-                "content": notes[i]['content']
+                "content": notes[i]['content'],
+                "date": (notes[i]['date'] != null)?Timestamp.fromDate(DateTime.parse(notes[i]['date'])):null
               });
             }
         });
     }
   }
-  
+
 }

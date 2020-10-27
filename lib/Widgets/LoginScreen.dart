@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -169,8 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
     //TODO: Change email and pass
     FocusScope.of(context).unfocus();
     auth.signInWithEmailAndPassword(
-          email: "test1@test.com",
-          password: "123456")
+          email: emailCon.text,
+          password: passCon.text)
       .then((value) {
       FirebaseFirestore.instance
               .collection("Users")
@@ -179,10 +180,16 @@ class _LoginScreenState extends State<LoginScreen> {
               .orderBy("id")
               .get().then((value) {
         value.docs.forEach((element) {
+          String date;
+          if(element.data()['date'] != null){
+            DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
+            date = d.toIso8601String();
+          }
           _insert(
             element.data()['id'],
             element.data()['title'],
-            element.data()['content']
+            element.data()['content'],
+            date,
           );
         });
       });
@@ -198,11 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
   });
   }
 
-  Future _insert(int id, String title, String content) async {
+  Future _insert(int id, String title, String content, String date) async {
     Map<String, dynamic> row = {
       DatabaseHelper.columnId: id,
       DatabaseHelper.columnTitle: title,
-      DatabaseHelper.columnContent: content
+      DatabaseHelper.columnContent: content,
+      DatabaseHelper.columnDate: date,
     };
     await dbHelper.insert(row);
   }

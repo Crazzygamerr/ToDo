@@ -13,6 +13,7 @@ class DatabaseHelper {
   static final columnId = '_id';
   static final columnTitle = 'title';
   static final columnContent = 'content';
+  static final columnDate = 'date';
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -45,7 +46,8 @@ class DatabaseHelper {
       CREATE TABLE $table (
         $columnId INTEGER,
         $columnTitle STRING,
-        $columnContent STRING
+        $columnContent STRING,
+        $columnDate STRING
       )
     ''');
   }
@@ -72,7 +74,8 @@ class DatabaseHelper {
         {
           "_id": 0,
           "title": "not null test",
-          "content": ""
+          "content": "",
+          "date": null
         }
       ];
   }

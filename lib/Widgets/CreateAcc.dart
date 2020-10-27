@@ -179,6 +179,7 @@ class _CreateAccState extends State<CreateAcc> {
           .add({
         "title": "Hey There!",
         "content": "",
+        "date": null,
       }).then((value) {
         SharedPref.setUser(emailCon.text, true);
         Navigator.pushAndRemoveUntil(
@@ -197,7 +198,8 @@ class _CreateAccState extends State<CreateAcc> {
     final dbHelper = DatabaseHelper.instance;
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
-      DatabaseHelper.columnContent  : ""
+      DatabaseHelper.columnContent  : "",
+      DatabaseHelper.columnDate: "",
     };
     await dbHelper.add(row);
   }

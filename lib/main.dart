@@ -171,7 +171,8 @@ class _LoadingState extends State<Loading> {
     final dbHelper = DatabaseHelper.instance;
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
-      DatabaseHelper.columnContent  : ""
+      DatabaseHelper.columnContent  : "",
+      DatabaseHelper.columnDate: DateTime.now().toIso8601String()
     };
     await dbHelper.add(row);
   }
