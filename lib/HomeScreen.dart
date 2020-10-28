@@ -135,9 +135,52 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         drawer: Drawer(
           child: Container(
+            padding: EdgeInsets.fromLTRB(
+                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setHeight(25),
+                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setHeight(10)
+            ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                          0,
+                          0,
+                          0,
+                          ScreenUtil().setHeight(20)
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: ScreenUtil().setWidth(75),
+                  ),
+                ),
+
+                Text(
+                  (email == "guest")?"Guest":email,
+                  style: TextStyle(
+                    fontSize: ScreenUtil().setSp(20)
+                  ),
+                ),
+
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                          ScreenUtil().setWidth(10),
+                          ScreenUtil().setHeight(10),
+                          ScreenUtil().setWidth(10),
+                          ScreenUtil().setHeight(10)
+                  ),
+                  height: ScreenUtil().setHeight(550),
+                  child: StreamBuilder(
+                    stream: null,
+                    builder: (context, snapshot) {
+                      return null;
+                    },
+                  ),
+                ),
+
                 RaisedButton(
                   child: Text("Log out"),
                   onPressed: () {
@@ -146,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
                 ),
+
               ],
             ),
           ),
