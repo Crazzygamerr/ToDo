@@ -34,6 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
 
+    emailCon.text = "test1@test.com";
+    passCon.text = "123456";
+
     return Container(
       child: Column(
         children: [
@@ -186,40 +189,33 @@ class _LoginScreenState extends State<LoginScreen> {
             DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
             date = d.toIso8601String();
           }
-          notes.add({
+          var temp = {
             DatabaseHelper.columnId: element.data()['id'],
             DatabaseHelper.columnTitle: element.data()['title'],
             DatabaseHelper.columnContent: element.data()['content'],
             DatabaseHelper.columnDate: date,
-          });
-          _insert(
-            element.data()['id'],
-            element.data()['title'],
-            element.data()['content'],
-            date,
-          );
+          };
+          notes.add(temp);
+          _insert(temp);
         });
       });
       SharedPref.setUser(emailCon.text, true).then((value) {
         Navigator.pushAndRemoveUntil(
                 context,
                 new MaterialPageRoute(
-                        builder: (context) => HomeScreen()
+                        builder: (context) => HomeScreen(
+                          notes: notes,
+                        )
                 ), (route) => false);
         });
   }).catchError((onError) {
+    print(onError.toString());
     _formKey2.currentState.validate();
   });
   }
 
-  Future _insert(int id, String title, String content, String date) async {
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnId: id,
-      DatabaseHelper.columnTitle: title,
-      DatabaseHelper.columnContent: content,
-      DatabaseHelper.columnDate: date,
-    };
-    await dbHelper.insert(row);
+  Future _insert(Map<String, dynamic> row) async {
+    //await dbHelper.insert(row);
   }
 
 }

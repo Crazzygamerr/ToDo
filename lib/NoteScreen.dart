@@ -3,14 +3,16 @@ import 'dart:math';
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 class NoteScreen extends StatefulWidget {
   
   final DocumentSnapshot snapshot;
   final Map<String, dynamic> note;
+  final int index;
 
-  NoteScreen({Key key, this.snapshot, this.note}) : super(key: key);
+  NoteScreen({Key key, this.snapshot, this.note, this.index}) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -31,6 +33,7 @@ class _NoteScreenState extends State<NoteScreen> {
   
   @override
   void initState() {
+    print(widget.note);
     if(widget.snapshot != null) {
       titleCon.text = widget.snapshot.data()['title'];
       contentCon.text = widget.snapshot.data()['content'];
@@ -54,6 +57,10 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    ScreenUtil.init(context,
+            width: 411.4, height: 866.3, allowFontScaling: true);
+
     return WillPopScope(
       onWillPop: () async {
         await save();
@@ -85,7 +92,12 @@ class _NoteScreenState extends State<NoteScreen> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.fromLTRB(
+                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setHeight(10),
+                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setHeight(10)
+            ),
             child: Column(
               children: [
                 TextFormField(
@@ -156,12 +168,15 @@ class _NoteScreenState extends State<NoteScreen> {
       widget.snapshot.reference
               .update({"title": titleCon.text, "content": contentCon.text.trim()});
     }
-    await dbHelper.update({
-      DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
-      DatabaseHelper.columnTitle: titleCon.text,
-      DatabaseHelper.columnContent: contentCon.text.trim(),
-      DatabaseHelper.columnDate: pickedDate
-    }).then((value) {
+    await dbHelper.update(
+      {
+        DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
+        DatabaseHelper.columnTitle: titleCon.text,
+        DatabaseHelper.columnContent: contentCon.text.trim(),
+        DatabaseHelper.columnDate: pickedDate
+      },
+      widget.index
+    ).then((value) {
       Navigator.pop(context);
     });
 

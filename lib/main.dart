@@ -152,7 +152,7 @@ class _LoadingState extends State<Loading> {
                                       new MaterialPageRoute(
                                               builder: (context) => HomeScreen(notes: [
                                                 {
-                                                  DatabaseHelper.columnId: 0,
+                                                  DatabaseHelper.columnId: 1,
                                                   DatabaseHelper.columnTitle: 'Hey there!',
                                                   DatabaseHelper.columnContent  : "",
                                                   DatabaseHelper.columnDate: null,
@@ -180,7 +180,7 @@ class _LoadingState extends State<Loading> {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
     };
-    await dbHelper.add(row);
+    await dbHelper.add(row, 0);
   }
 
 }

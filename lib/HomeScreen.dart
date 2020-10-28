@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   List<Map<String, dynamic>> notes = [];
+  int listIndex = 0;
 
   CollectionReference collectionReference;
 
@@ -101,10 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getMap() async {
-    setState(() {
-      loadSQL = false;
-    });
-    dbHelper.queryAllRows().then((value) {
+    dbHelper.queryAllRows(listIndex).then((value) {
       setState(() {
         notes = value;
         loadSQL = true;
@@ -159,9 +157,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 Text(
-                  (email == "guest")?"Guest":email,
+                  (email == null)
+                          ? ""
+                          : (email == "guest")
+                            ? "Guest"
+                            : email,
                   style: TextStyle(
-                    fontSize: ScreenUtil().setSp(20)
+                    fontSize: ScreenUtil().setSp(30)
                   ),
                 ),
 
@@ -172,11 +174,100 @@ class _HomeScreenState extends State<HomeScreen> {
                           ScreenUtil().setWidth(10),
                           ScreenUtil().setHeight(10)
                   ),
-                  height: ScreenUtil().setHeight(550),
-                  child: StreamBuilder(
-                    stream: null,
-                    builder: (context, snapshot) {
-                      return null;
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Lists:",
+                    style: TextStyle(
+                      fontSize: ScreenUtil().setSp(20)
+                    ),
+                  ),
+                ),
+
+                RaisedButton(
+                  child: Text("Add List"),
+                  onPressed: () {
+                    addList().then((value) {
+                      setState(() {
+                      });
+                    });
+                  },
+                ),
+
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                          ScreenUtil().setWidth(10),
+                          ScreenUtil().setHeight(10),
+                          ScreenUtil().setWidth(10),
+                          ScreenUtil().setHeight(10)
+                  ),
+                  height: ScreenUtil().setHeight(400),
+                  child: ListView.builder(
+                    itemCount: DatabaseHelper.listOfTables.length,
+                    padding: EdgeInsets.all(0),
+                    itemBuilder: (context, pos) {
+
+                      return GestureDetector(
+                        onTap: () {
+                          listIndex = pos;
+                          getMap();
+                          Navigator.pop(context);
+                        },
+                        child: Card(
+                          child: Container(
+                            padding: EdgeInsets.fromLTRB(
+                                    ScreenUtil().setWidth(10),
+                                    ScreenUtil().setHeight(10),
+                                    ScreenUtil().setWidth(10),
+                                    ScreenUtil().setHeight(10)
+                            ),
+                            child: Row(
+                              children: [
+
+                                Text(
+                                  DatabaseHelper.listOfTables[pos][0].toString(),
+                                  style: TextStyle(
+                                    fontSize: ScreenUtil().setSp(15),
+                                  ),
+                                ),
+
+                                (pos != 0)?IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: Text("Are you sure you want to delete ${DatabaseHelper.listOfTables[pos][0]}?"),
+                                        actions: [
+                                          FlatButton(
+                                            child: Text("No"),
+                                            onPressed: (){
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text("Yes"),
+                                            onPressed: (){
+                                              Navigator.pop(context);
+                                              dbHelper.drop(pos).then((value) {
+                                                setState(() {
+                                                  listIndex = 0;
+                                                });
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      barrierDismissible: false,
+                                    );
+                                  },
+                                  icon: Icon(Icons.delete),
+                                ):Container(),
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+
                     },
                   ),
                 ),
@@ -184,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 RaisedButton(
                   child: Text("Log out"),
                   onPressed: () {
-                    dbHelper.drop();
+                    dbHelper.dropAllTables();
                     SharedPref.setUserLogin(false);
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
@@ -250,8 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(
                             width: ScreenUtil().setWidth(10),
                           ),
-                          Text(
-                            (email == "guest")?"Log in to sync notes.":"No internet connection",
+                          Text((email == "guest")?"Log in to sync notes.":"No internet connection",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                     color: Colors.white
@@ -327,8 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           width: ScreenUtil().setWidth(10),
                         ),
-                        Text(
-                          (email == "guest")?"Log in to sync notes.":"No internet connection",
+                        Text((email == "guest")?"Log in to sync notes.":"No internet connection",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white
@@ -382,6 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => NoteScreen(
                                     snapshot: (conn)?snapshot.data.docs[pos]:null,
                                     note: notes[pos],
+                                    index: listIndex,
                                   ),
                                 )).then((value) {
                               getMap();
@@ -449,7 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             .doc(snapshot.data.docs[pos].id)
                                             .delete();
                                       }
-                                      dbHelper.delete(notes[pos][DatabaseHelper.columnId]).then((value) {
+                                      dbHelper.delete(notes[pos][DatabaseHelper.columnId], listIndex).then((value) {
                                         getMap();
                                       });
                                     },
@@ -473,7 +563,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _insert([QuerySnapshot snapshot]) async {
-    int p = notes.length;
+    int p = await dbHelper.queryLastId(listIndex);
+    p = p + 1;
+    int len = notes.length;
     if (conn) {
       collectionReference.add({
         "id": p,
@@ -482,13 +574,14 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     Map<String, dynamic> row = {
+      DatabaseHelper.columnId: p,
       DatabaseHelper.columnTitle: "",
       DatabaseHelper.columnContent: "",
       DatabaseHelper.columnDate: null,
     };
-    await dbHelper.add(row);
+    await dbHelper.add(row, listIndex);
     setState(() {
-      notes.insert(p,{
+      notes.insert(len,{
         DatabaseHelper.columnId: p,
         DatabaseHelper.columnTitle: "",
         DatabaseHelper.columnContent: "",
@@ -507,6 +600,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   DatabaseHelper.columnContent: "",
                   DatabaseHelper.columnDate: null,
                 },
+                index: listIndex,
               ),
             )).then((value) {
       getMap();
@@ -527,6 +621,54 @@ class _HomeScreenState extends State<HomeScreen> {
             }
         });
     }
+  }
+
+  Future addList() async {
+    TextEditingController controller = new TextEditingController();
+    String listName;
+    final _formKey = GlobalKey<FormState>();
+
+    await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Add a new list"),
+        content: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: controller,
+            autofocus: true,
+            validator: (value) {
+              if(controller.text == null || controller.text == "")
+                return "List name cannot be empty";
+              else
+                return null;
+            },
+          ),
+        ),
+        actions: [
+          FlatButton(
+            child: Text("Exit"),
+            onPressed: (){
+              Navigator.pop(context);
+            },
+          ),
+          FlatButton(
+            child: Text("Create"),
+            onPressed: (){
+              _formKey.currentState.validate();
+              if (controller.text != "") {
+                listName =  controller.text;
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    if(listName != null && listName != "")
+      dbHelper.createTable(listName);
   }
 
 }

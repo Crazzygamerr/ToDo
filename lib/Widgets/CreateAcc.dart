@@ -206,7 +206,7 @@ class _CreateAccState extends State<CreateAcc> {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
     };
-    await dbHelper.add(row);
+    await dbHelper.add(row, 0);
   }
   
 }
