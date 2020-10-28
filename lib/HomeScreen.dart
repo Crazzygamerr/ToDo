@@ -14,8 +14,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'NoteScreen.dart';
 
 class HomeScreen extends StatefulWidget {
+
+  final List<Map<String, dynamic>> notes;
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
+
+  HomeScreen({this.notes});
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -41,7 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     _connectivitySubscription =  Connectivity().onConnectivityChanged.listen(getInternet);
     super.initState();
-    getMap();
+    if(widget.notes != null) {
+      notes = widget.notes;
+      loadSQL = true;
+    } else {
+      getMap();
+    }
   }
 
   @override
@@ -172,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
 
-            } else if(notes.length == 0) {
+            } else if(snapshot.data.docs.length == 0 && notes.length == 0) {
               return Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,

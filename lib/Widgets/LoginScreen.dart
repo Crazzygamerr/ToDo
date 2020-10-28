@@ -169,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void loginFunc() async {
     //TODO: Change email and pass
     FocusScope.of(context).unfocus();
+    List<Map<String, dynamic>> notes = [];
     auth.signInWithEmailAndPassword(
           email: emailCon.text,
           password: passCon.text)
@@ -185,6 +186,12 @@ class _LoginScreenState extends State<LoginScreen> {
             DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
             date = d.toIso8601String();
           }
+          notes.add({
+            DatabaseHelper.columnId: element.data()['id'],
+            DatabaseHelper.columnTitle: element.data()['title'],
+            DatabaseHelper.columnContent: element.data()['content'],
+            DatabaseHelper.columnDate: date,
+          });
           _insert(
             element.data()['id'],
             element.data()['title'],

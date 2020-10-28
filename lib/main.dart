@@ -150,7 +150,14 @@ class _LoadingState extends State<Loading> {
                               Navigator.pushAndRemoveUntil(
                                       context,
                                       new MaterialPageRoute(
-                                              builder: (context) => HomeScreen()
+                                              builder: (context) => HomeScreen(notes: [
+                                                {
+                                                  DatabaseHelper.columnId: 0,
+                                                  DatabaseHelper.columnTitle: 'Hey there!',
+                                                  DatabaseHelper.columnContent  : "",
+                                                  DatabaseHelper.columnDate: null,
+                                                }
+                                              ],)
                                       ), (route) => false);
                             });
                           },
@@ -172,7 +179,6 @@ class _LoadingState extends State<Loading> {
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
-      DatabaseHelper.columnDate: DateTime.now().toIso8601String()
     };
     await dbHelper.add(row);
   }

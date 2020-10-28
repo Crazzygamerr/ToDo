@@ -185,7 +185,13 @@ class _CreateAccState extends State<CreateAcc> {
         Navigator.pushAndRemoveUntil(
                 context,
                 new MaterialPageRoute(
-                        builder: (context) => HomeScreen()
+                        builder: (context) => HomeScreen(notes: [
+                          {
+                            DatabaseHelper.columnId: 0,
+                            DatabaseHelper.columnTitle: 'Hey there!',
+                            DatabaseHelper.columnContent  : "",
+                          }
+                        ],)
                 ), (route) => false);
       });
     }).catchError((onError) {
@@ -199,7 +205,6 @@ class _CreateAccState extends State<CreateAcc> {
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
-      DatabaseHelper.columnDate: "",
     };
     await dbHelper.add(row);
   }
