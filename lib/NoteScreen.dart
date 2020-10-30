@@ -75,6 +75,7 @@ class _NoteScreenState extends State<NoteScreen> {
             icon: Icon(Icons.arrow_back),
           ),
           title: TextFormField(
+            keyboardType: TextInputType.text,
             maxLines: 1,
             controller: titleCon,
             focusNode: titleNode,
@@ -166,16 +167,22 @@ class _NoteScreenState extends State<NoteScreen> {
     contentNode.unfocus();
     if(widget.snapshot != null) {
       widget.snapshot.reference
-              .update({"title": titleCon.text, "content": contentCon.text.trim()});
+              .update(
+                {
+                  "title": titleCon.text.toString(),
+                  "content": contentCon.text.toString().trim(),
+                  "list": DatabaseHelper.listOfLists[widget.index]
+                }
+              );
     }
     await dbHelper.update(
       {
         DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
-        DatabaseHelper.columnTitle: titleCon.text,
-        DatabaseHelper.columnContent: contentCon.text.trim(),
-        DatabaseHelper.columnDate: pickedDate
+        DatabaseHelper.columnTitle: titleCon.text.toString(),
+        DatabaseHelper.columnContent: contentCon.text.toString().trim(),
+        DatabaseHelper.columnDate: pickedDate,
+        DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.index],
       },
-      widget.index
     ).then((value) {
       Navigator.pop(context);
     });

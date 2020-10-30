@@ -55,7 +55,7 @@ class _CreateAccState extends State<CreateAcc> {
                   onEditingComplete: () {
                     FirebaseFirestore.instance
                         .collection("Users")
-                        .doc(emailCon.text)
+                        .doc(emailCon.text.toString())
                         .get()
                         .then((value) {
                       if (value.exists) {
@@ -166,22 +166,24 @@ class _CreateAccState extends State<CreateAcc> {
   loginFunc() async {
     FocusNode().unfocus();
     auth.createUserWithEmailAndPassword(
-            email: emailCon.text, password: passCon.text)
+            email: emailCon.text.toString(), password: passCon.text.toString())
         .then((value) {
       _insert();
-      FirebaseFirestore.instance.collection("Users").doc(emailCon.text).set({
+      FirebaseFirestore.instance.collection("Users").doc(emailCon.text.toString()).set({
         "Create Date": DateTime.now(),
       });
       FirebaseFirestore.instance
           .collection("Users")
-          .doc(emailCon.text)
+          .doc(emailCon.text.toString())
           .collection("todo")
           .add({
+        "id": 0,
         "title": "Hey There!",
         "content": "",
         "date": null,
+        "list": "Default",
       }).then((value) {
-        SharedPref.setUser(emailCon.text, true);
+        SharedPref.setUser(emailCon.text.toString(), true);
         Navigator.pushAndRemoveUntil(
                 context,
                 new MaterialPageRoute(
@@ -190,6 +192,8 @@ class _CreateAccState extends State<CreateAcc> {
                             DatabaseHelper.columnId: 0,
                             DatabaseHelper.columnTitle: 'Hey there!',
                             DatabaseHelper.columnContent  : "",
+                            DatabaseHelper.columnDate: null,
+                            DatabaseHelper.columnList: "Default"
                           }
                         ],)
                 ), (route) => false);
@@ -205,8 +209,9 @@ class _CreateAccState extends State<CreateAcc> {
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
+      DatabaseHelper.columnList: "Default"
     };
-    await dbHelper.add(row, 0);
+    await dbHelper.add(row);
   }
   
 }

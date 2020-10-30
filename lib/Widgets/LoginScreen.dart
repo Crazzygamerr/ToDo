@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onEditingComplete: () {
                   FirebaseFirestore.instance
                       .collection("Users")
-                      .doc(emailCon.text)
+                      .doc(emailCon.text.toString())
                       .get()
                       .then((value) {
                     if (value.exists) {
@@ -173,13 +173,23 @@ class _LoginScreenState extends State<LoginScreen> {
     //TODO: Change email and pass
     FocusScope.of(context).unfocus();
     List<Map<String, dynamic>> notes = [];
+
     auth.signInWithEmailAndPassword(
-          email: emailCon.text,
-          password: passCon.text)
+          email: emailCon.text.toString(),
+          password: passCon.text.toString())
       .then((value) {
       FirebaseFirestore.instance
               .collection("Users")
-              .doc(emailCon.text)
+              .doc(emailCon.text.toString()).get().then((value) {
+        DatabaseHelper.listOfLists = [];
+        List<dynamic> temp = value.data()['lists'];
+        for(var element in temp){
+          DatabaseHelper.listOfLists.add(element.toString());
+        }
+      });
+      FirebaseFirestore.instance
+              .collection("Users")
+              .doc(emailCon.text.toString())
               .collection("todo")
               .orderBy("id")
               .get().then((value) {
@@ -194,12 +204,13 @@ class _LoginScreenState extends State<LoginScreen> {
             DatabaseHelper.columnTitle: element.data()['title'],
             DatabaseHelper.columnContent: element.data()['content'],
             DatabaseHelper.columnDate: date,
+            DatabaseHelper.columnList: element.data()['list']
           };
           notes.add(temp);
-          _insert(temp);
         });
+        _insert(notes);
       });
-      SharedPref.setUser(emailCon.text, true).then((value) {
+      SharedPref.setUser(emailCon.text.toString(), true).then((value) {
         Navigator.pushAndRemoveUntil(
                 context,
                 new MaterialPageRoute(
@@ -214,8 +225,8 @@ class _LoginScreenState extends State<LoginScreen> {
   });
   }
 
-  Future _insert(Map<String, dynamic> row) async {
-    //await dbHelper.insert(row);
+  Future _insert(List<Map<String, dynamic>> row) async {
+    await dbHelper.batchInsert(row);
   }
 
 }

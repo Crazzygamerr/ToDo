@@ -156,9 +156,11 @@ class _LoadingState extends State<Loading> {
                                                   DatabaseHelper.columnTitle: 'Hey there!',
                                                   DatabaseHelper.columnContent  : "",
                                                   DatabaseHelper.columnDate: null,
+                                                  DatabaseHelper.columnList: "Default"
                                                 }
                                               ],)
-                                      ), (route) => false);
+                                      ), (route) => false
+                              );
                             });
                           },
                         ),
@@ -179,8 +181,9 @@ class _LoadingState extends State<Loading> {
     Map<String, dynamic> row = {
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
+      DatabaseHelper.columnList: "Default"
     };
-    await dbHelper.add(row, 0);
+    await dbHelper.add(row);
   }
 
 }

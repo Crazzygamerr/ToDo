@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               conn = true;
             });
           }
-          checkSync(await collectionReference.get());
+          checkSync();
         }
     } on SocketException catch (_) {
         if (mounted) {
@@ -102,7 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getMap() async {
-    dbHelper.queryAllRows(listIndex).then((value) {
+    dbHelper.getLists();
+    dbHelper.queryAllRows().then((value) {
       setState(() {
         notes = value;
         loadSQL = true;
@@ -129,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
-          title: Text((conn)?"firebase":"sqflite"),
+          title: Text(DatabaseHelper.listOfLists[listIndex]),
         ),
         drawer: Drawer(
           child: Container(
@@ -190,6 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                       });
                     });
+                    //dbHelper.printTable();
+                    checkSync();
                   },
                 ),
 
@@ -202,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   height: ScreenUtil().setHeight(400),
                   child: ListView.builder(
-                    itemCount: DatabaseHelper.listOfTables.length,
+                    itemCount: DatabaseHelper.listOfLists.length,
                     padding: EdgeInsets.all(0),
                     itemBuilder: (context, pos) {
 
@@ -224,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
 
                                 Text(
-                                  DatabaseHelper.listOfTables[pos][0].toString(),
+                                  DatabaseHelper.listOfLists[pos].toString(),
                                   style: TextStyle(
                                     fontSize: ScreenUtil().setSp(15),
                                   ),
@@ -235,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (_) => AlertDialog(
-                                        title: Text("Are you sure you want to delete ${DatabaseHelper.listOfTables[pos][0]}?"),
+                                        title: Text("Are you sure you want to delete ${DatabaseHelper.listOfLists[pos]}?"),
                                         actions: [
                                           FlatButton(
                                             child: Text("No"),
@@ -247,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: Text("Yes"),
                                             onPressed: (){
                                               Navigator.pop(context);
-                                              dbHelper.drop(pos).then((value) {
+                                              drop(pos).then((value) {
                                                 setState(() {
                                                   listIndex = 0;
                                                 });
@@ -275,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 RaisedButton(
                   child: Text("Log out"),
                   onPressed: () {
-                    dbHelper.dropAllTables();
+                    dbHelper.drop();
                     SharedPref.setUserLogin(false);
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
@@ -428,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ):Container(),
                   GestureDetector(
                     onTap: () {
-                      _insert(snapshot.data);
+                      _insert();
                     },
                     child: Container(
                       //color: Colors.yellow,
@@ -463,93 +466,105 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                       itemCount: (conn)?snapshot.data.docs.length:notes.length,
                       itemBuilder: (context, pos) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                  builder: (context) => NoteScreen(
-                                    snapshot: (conn)?snapshot.data.docs[pos]:null,
-                                    note: notes[pos],
-                                    index: listIndex,
-                                  ),
-                                )).then((value) {
-                              getMap();
-                            });
-                          },
-                          child: Card(
-                            child: Container(
-                              padding: EdgeInsets.fromLTRB(
-                                  ScreenUtil().setWidth(20),
-                                  ScreenUtil().setHeight(10),
-                                  ScreenUtil().setWidth(20),
-                                  ScreenUtil().setHeight(10)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          (conn)?snapshot.data.docs[pos].data()['title']:notes[pos]['title'],
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        SizedBox(
-                                          height: ScreenUtil().setHeight(5),
-                                        ),
-                                        Text(
-                                          (conn)?(
-                                            (snapshot.data
-                                                    .docs[pos]
-                                                    .data()['date'] == null)?
-                                              snapshot.data
-                                                      .docs[pos]
-                                                      .data()['content']:
-                                            DateFormat.yMd().add_jm().format(
-                                              DateTime.fromMillisecondsSinceEpoch(
-                                                      snapshot.data
-                                                            .docs[pos]
-                                                            .data()['date'].seconds * 1000
-                                              )
-                                            ).toString()
-                                          ):(
-                                            (notes[pos]['date'] == null)?
-                                              notes[pos]['content']:
-                                              DateFormat.yMd().add_jm().format(
-                                                      DateTime.parse(
-                                                              notes[pos]['date']
-                                                      )
-                                              ).toString()
-                                          ),
-                                          maxLines: 2,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.black.withOpacity(0.65)),
-                                              overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                        if(notes[pos]['content'].toString() == "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb"){
+                          return Container();
+                        }
+                        if((conn
+                            && snapshot.data.docs[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString())
+                            || notes[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString()) {
+
+                          return Container();
+
+                        } else {
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  new MaterialPageRoute(
+                                    builder: (context) => NoteScreen(
+                                      snapshot: (conn)?snapshot.data.docs[pos]:null,
+                                      note: notes[pos],
+                                      index: listIndex,
                                     ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      if (conn) {
-                                        collectionReference
-                                            .doc(snapshot.data.docs[pos].id)
-                                            .delete();
-                                      }
-                                      dbHelper.delete(notes[pos][DatabaseHelper.columnId], listIndex).then((value) {
-                                        getMap();
-                                      });
-                                    },
-                                    icon: Icon(Icons.delete),
-                                  ),
-                                ],
+                                  )).then((value) {
+                                getMap();
+                              });
+                            },
+                            child: Card(
+                              child: Container(
+                                padding: EdgeInsets.fromLTRB(
+                                    ScreenUtil().setWidth(20),
+                                    ScreenUtil().setHeight(10),
+                                    ScreenUtil().setWidth(20),
+                                    ScreenUtil().setHeight(10)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            (conn)?snapshot.data.docs[pos].data()['title']:notes[pos]['title'].toString(),
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                          SizedBox(
+                                            height: ScreenUtil().setHeight(5),
+                                          ),
+                                          Text(
+                                            (conn)?(
+                                              (snapshot.data
+                                                      .docs[pos]
+                                                      .data()['date'] == null)?
+                                                snapshot.data
+                                                        .docs[pos]
+                                                        .data()['content']:
+                                              DateFormat.yMd().add_jm().format(
+                                                DateTime.fromMillisecondsSinceEpoch(
+                                                        snapshot.data
+                                                              .docs[pos]
+                                                              .data()['date'].seconds * 1000
+                                                )
+                                              ).toString()
+                                            ):(
+                                              (notes[pos]['date'] == null)?
+                                                notes[pos]['content'].toString():
+                                                DateFormat.yMd().add_jm().format(
+                                                        DateTime.parse(
+                                                                notes[pos]['date']
+                                                        )
+                                                ).toString()
+                                            ),
+                                            maxLines: 2,
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.black.withOpacity(0.65)),
+                                                overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        if (conn) {
+                                          collectionReference
+                                              .doc(snapshot.data.docs[pos].id)
+                                              .delete();
+                                        }
+                                        dbHelper.delete(notes[pos][DatabaseHelper.columnId]).then((value) {
+                                          getMap();
+                                        });
+                                      },
+                                      icon: Icon(Icons.delete),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       },
                     ),
                   ),
@@ -562,44 +577,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future _insert([QuerySnapshot snapshot]) async {
-    int p = await dbHelper.queryLastId(listIndex);
+  Future _insert() async {
+    int p = await dbHelper.queryLastId();
     p = p + 1;
-    int len = notes.length;
-    if (conn) {
-      collectionReference.add({
-        "id": p,
-        "title": "",
-        "content": "",
-      });
-    }
+    DocumentSnapshot snapshot;
+    DocumentReference ref;
     Map<String, dynamic> row = {
       DatabaseHelper.columnId: p,
       DatabaseHelper.columnTitle: "",
       DatabaseHelper.columnContent: "",
       DatabaseHelper.columnDate: null,
+      DatabaseHelper.columnList: DatabaseHelper.listOfLists[listIndex]
     };
-    await dbHelper.add(row, listIndex);
-    setState(() {
-      notes.insert(len,{
-        DatabaseHelper.columnId: p,
-        DatabaseHelper.columnTitle: "",
-        DatabaseHelper.columnContent: "",
-        DatabaseHelper.columnDate: null,
-      }
-      );
-    });
+    notes.add(row);
+    if (conn) {
+      ref = await collectionReference.add(row);
+      snapshot = await ref.get();
+    }
+    await dbHelper.insert(row);
     Navigator.push(
             context,
             new MaterialPageRoute(
               builder: (context) => NoteScreen(
-                snapshot: (conn)?snapshot.docs[p]:null,
-                note: {
-                  DatabaseHelper.columnId: p,
-                  DatabaseHelper.columnTitle: "",
-                  DatabaseHelper.columnContent: "",
-                  DatabaseHelper.columnDate: null,
-                },
+                snapshot: (conn)?snapshot:null,
+                note: row,
                 index: listIndex,
               ),
             )).then((value) {
@@ -607,18 +608,31 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void checkSync(QuerySnapshot snapshot) async {
+  void checkSync() async {
     if(notes.length >= 1) {
       collectionReference.orderBy("id")
-              .get().then((value) {
-          for(int i=0;i<value.docs.length;i++)
-            if(value.docs[i].data() != notes[value.docs[i].data()['id']]) {
-              collectionReference.doc(value.docs[i].id).update({
-                "title": notes[i]['title'],
-                "content": notes[i]['content'],
-                "date": (notes[i]['date'] != null)?Timestamp.fromDate(DateTime.parse(notes[i]['date'])):null
+              .get().then((snapshot) {
+
+          int j=0;
+
+          for(int i=0;i<snapshot.docs.length;i++) {
+
+            if (snapshot.docs[i]['id'] == notes[j]['id']) {
+              collectionReference.doc(snapshot.docs[i].id).update({
+                "title": notes[j]['title'],
+                "content": notes[j]['content'],
+                "date": (notes[j]['date'] != null)?Timestamp.fromDate(DateTime.parse(notes[i]['date'])):null,
+                "list": notes[j]['list']
               });
+            } else if(snapshot.docs[i]['id'] > notes[j]['id']) {
+              i--;
+              j++;
+            } else {
+              snapshot.docs[i].reference.delete();
             }
+
+          }
+
         });
     }
   }
@@ -635,10 +649,11 @@ class _HomeScreenState extends State<HomeScreen> {
         content: Form(
           key: _formKey,
           child: TextFormField(
+            keyboardType: TextInputType.text,
             controller: controller,
             autofocus: true,
             validator: (value) {
-              if(controller.text == null || controller.text == "")
+              if(controller.text == null || controller.text.toString() == "")
                 return "List name cannot be empty";
               else
                 return null;
@@ -656,8 +671,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text("Create"),
             onPressed: (){
               _formKey.currentState.validate();
-              if (controller.text != "") {
-                listName =  controller.text;
+              if (controller.text.toString() != "") {
+                listName =  controller.text.toString();
                 Navigator.pop(context);
               }
             },
@@ -667,8 +682,46 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
     );
 
-    if(listName != null && listName != "")
-      dbHelper.createTable(listName);
+    if(listName != null && listName != "") {
+      var temp = await dbHelper.add({
+        "title": DatabaseHelper.listOfLists.length.toString(),
+        "content": "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb",
+        DatabaseHelper.columnList: listName.toString()
+      });
+      DatabaseHelper.listOfLists.add(listName.toString());
+      if (conn) {
+        FirebaseFirestore.instance
+                .collection("Users")
+                .doc(email)
+                .get().then((value) {
+                  value.reference.update({
+                    "lists": DatabaseHelper.listOfLists,
+                  });
+        });
+        collectionReference.add(temp);
+      }
+    }
+  }
+
+  Future drop(int pos) async {
+    await dbHelper.dropList(pos);
+    if (conn) {
+      FirebaseFirestore.instance
+              .collection("Users")
+              .doc(email).get().then((value) {
+                var temp = value.data()['lists'];
+                temp.removeAt(pos);
+                value.reference.update({
+                  "lists": temp
+                });
+      });
+      collectionReference.where('list', isEqualTo: DatabaseHelper.listOfLists[pos]).get().then((value) {
+        value.docs.forEach((element) {
+          element.reference.delete();
+        });
+      });
+    }
+    DatabaseHelper.listOfLists.removeAt(pos);
   }
 
 }
