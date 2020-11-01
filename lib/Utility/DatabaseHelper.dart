@@ -14,6 +14,7 @@ class DatabaseHelper {
   static final String columnTitle = 'title';
   static final String columnContent = 'content';
   static final String columnDate = 'date';
+  static final String columnDone = 'done';
   static final String columnList = 'list';
 
   static List<String> listOfLists = [
@@ -50,6 +51,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $table (
         $columnId INTEGER,
+        $columnDone INTEGER,
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
@@ -63,6 +65,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $table (
         $columnId INTEGER,
+        $columnDone INTEGER,
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
@@ -106,22 +109,50 @@ class DatabaseHelper {
     return await db.delete(table, where: '$columnList = ?', whereArgs: [listOfLists[index].toString()]);
   }
 
+  Future getLists() async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> x = await db.rawQuery("SELECT `list` FROM $table WHERE $columnContent='3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb'  ORDER BY  $columnTitle");
+    List<String> temp = [];
+    temp.add("Default");
+    x.forEach((element) {
+      temp.add(element['list'].toString());
+    });
+    listOfLists = temp;
+  }
+
   Future insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
     await db.insert(table, row);
   }
   
   Future printTable() async {
-    var x = await queryAllRows();
+    var x = await queryAllRows(columnId);
     x.forEach((element) {
+      print("........." + element.toString() + "\n");
     });
   }
 
-  Future<List<Map<String, dynamic>>> queryAllRows() async {
+  Future<List<Map<String, dynamic>>> queryAllRows(String orderBy, {bool desc = false}) async {
     Database db = await instance.database;
-    List<Map<String, dynamic>> x = await db.query(table);
+    List<Map<String, dynamic>> x;
+    if(desc)
+      x = await db.rawQuery('SELECT * FROM $table ORDER BY  $orderBy DESC');
+    else
+      x = await db.rawQuery('SELECT * FROM $table ORDER BY  $orderBy');
+
+    List<Map<String, dynamic>> temp = [];
+    x.forEach((element) {
+      temp.add({
+        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
+        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
+        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
+        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
+        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
+        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+      });
+    });
     if(x != null)
-      return List.from(x);
+      return temp;
     else
       return [
         {
@@ -142,7 +173,36 @@ class DatabaseHelper {
   Future querytables() async {
     Database db = await instance.database;
     var c = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
-    print(c.toString());
+    return c;
+  }
+
+  Future<List<Map<String, dynamic>>> querySortedTable() async {
+    Database db = await instance.database;
+
+    List<Map<String, dynamic>> nullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NULL ORDER BY $columnId", null);
+    List<Map<String, dynamic>> notNullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NOT NULL ORDER BY $columnDate", null);
+    List<Map<String, dynamic>> list = [];
+    notNullList.forEach((element) {
+      list.add({
+        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
+        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
+        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
+        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
+        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
+        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+      });
+    });
+    nullList.forEach((element) {
+      list.add({
+        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
+        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
+        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
+        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
+        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
+        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+      });
+    });
+    return list;
   }
 
   Future<int> queryRowCount() async {
@@ -154,17 +214,6 @@ class DatabaseHelper {
     Database db = await instance.database;
     int id = row[columnId];
     await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
-  }
-
-  Future getLists() async {
-    Database db = await instance.database;
-    List<Map<String, dynamic>> x = await db.rawQuery("SELECT `list` FROM $table WHERE $columnContent='3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb'  ORDER BY  $columnTitle");
-    List<String> temp = [];
-    temp.add("Default");
-    x.forEach((element) {
-      temp.add(element['list'].toString());
-    });
-    listOfLists = temp;
   }
 
 }

@@ -153,6 +153,7 @@ class _LoadingState extends State<Loading> {
                                               builder: (context) => HomeScreen(notes: [
                                                 {
                                                   DatabaseHelper.columnId: 1,
+                                                  DatabaseHelper.columnDone: 0,
                                                   DatabaseHelper.columnTitle: 'Hey there!',
                                                   DatabaseHelper.columnContent  : "",
                                                   DatabaseHelper.columnDate: null,
@@ -179,8 +180,9 @@ class _LoadingState extends State<Loading> {
   _insert() async {
     final dbHelper = DatabaseHelper.instance;
     Map<String, dynamic> row = {
+      DatabaseHelper.columnDone: 0,
       DatabaseHelper.columnTitle: 'Hey there!',
-      DatabaseHelper.columnContent  : "",
+      DatabaseHelper.columnContent: "",
       DatabaseHelper.columnList: "Default"
     };
     await dbHelper.add(row);

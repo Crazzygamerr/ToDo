@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -199,8 +200,9 @@ class _LoginScreenState extends State<LoginScreen> {
             DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
             date = d.toIso8601String();
           }
-          var temp = {
+          Map<String, dynamic> temp = {
             DatabaseHelper.columnId: element.data()['id'],
+            DatabaseHelper.columnDone: (element.data()['done'] != null)?element.data()['done']:null,
             DatabaseHelper.columnTitle: element.data()['title'],
             DatabaseHelper.columnContent: element.data()['content'],
             DatabaseHelper.columnDate: date,
@@ -220,8 +222,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ), (route) => false);
         });
   }).catchError((onError) {
-    print(onError.toString());
-    _formKey2.currentState.validate();
+    bool b = false;
+      FirebaseFirestore.instance
+              .collection("Users")
+              .doc(emailCon.text.toString())
+              .get()
+              .then((value) {
+        if (!value.exists)
+          b = true;
+      });
+
+    if(onError.code == "network-request-failed"){
+      Fluttertoast.showToast(
+        msg: "Network request failed",
+        textColor: Colors.black,
+        fontSize: 20,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    } else if(b) {
+      _formKey1.currentState.validate();
+    } else {
+      _formKey2.currentState.validate();
+    }
+
   });
   }
 

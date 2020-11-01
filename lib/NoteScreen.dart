@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:ToDo/Utility/DatabaseHelper.dart';
+import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,11 +9,14 @@ import 'package:intl/intl.dart';
 
 class NoteScreen extends StatefulWidget {
   
-  final DocumentSnapshot snapshot;
+  final DocumentReference ref;
   final Map<String, dynamic> note;
   final int index;
+  final int listIndex;
+  final bool create;
+  final bool conn;
 
-  NoteScreen({Key key, this.snapshot, this.note, this.index}) : super(key: key);
+  NoteScreen({Key key, this.ref, this.note, this.index, this.listIndex, this.create, this.conn}) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -30,29 +34,70 @@ class _NoteScreenState extends State<NoteScreen> {
 
   String pickedDate;
   TimeOfDay time;
+
+  DocumentSnapshot snapshot;
+  Map<String, dynamic> note;
+  int index;
+  bool create;
   
   @override
   void initState() {
-    print(widget.note);
-    if(widget.snapshot != null) {
-      titleCon.text = widget.snapshot.data()['title'];
-      contentCon.text = widget.snapshot.data()['content'];
-      if(widget.snapshot.data()['date'] != null) {
-        DateTime d = DateTime.fromMillisecondsSinceEpoch(
-                widget.snapshot.data()['date'].seconds * 1000);
-        pickedDate = d.toIso8601String();
+    note = widget.note;
+    index = widget.index;
+    create = widget.create;
+    if (!create) {
+      
+      if(widget.ref != null) {
+        getSnap(widget.ref).then((value) {
+          snapshot = value;
+          titleCon.text = snapshot.data()['title'].toString();
+          contentCon.text = (snapshot.data()['content'].toString() == null)?"":snapshot.data()['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
+          if(snapshot.data()['date'] != null) {
+            DateTime d = DateTime.fromMillisecondsSinceEpoch(
+                    snapshot.data()['date'].seconds * 1000);
+            pickedDate = d.toIso8601String();
+          }
+        });
+      } else {
+        titleCon.text = note['title'].toString();
+        contentCon.text = (note['content'].toString() == null)?"":note['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
+        pickedDate = note['date'];
       }
+      if(pickedDate != null) {
+        var temp = DateTime.parse(pickedDate);
+        time = new TimeOfDay(hour: temp.hour, minute: temp.minute);
+      }
+      
     } else {
-      titleCon.text = widget.note['title'];
-      contentCon.text = widget.note['content'];
-      pickedDate = widget.note['date'];
-    }
-    contentCon.text = contentCon.text + "\n\n\n\n\n\n\n\n\n\n";
-    if(pickedDate != null) {
-      var temp = DateTime.parse(pickedDate);
-      time = new TimeOfDay(hour: temp.hour, minute: temp.minute);
+      _create();
     }
     super.initState();
+  }
+
+  Future _create() async {
+    contentCon.text = "\n\n\n\n\n\n\n\n\n\n";
+    DocumentReference ref;
+    note = {
+      DatabaseHelper.columnId: index,
+      DatabaseHelper.columnTitle: "",
+      DatabaseHelper.columnContent: "",
+      DatabaseHelper.columnDate: null,
+      DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.listIndex]
+    };
+    if (widget.conn) {
+      ref = await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(await SharedPref.getEmail())
+              .collection("todo").add(note);
+      getSnap(ref).then((value) {
+        snapshot = value;
+      });
+    }
+    await dbHelper.insert(note);
+  }
+
+  Future<DocumentSnapshot> getSnap(DocumentReference ref) async {
+    return await ref.get();
   }
 
   @override
@@ -165,23 +210,23 @@ class _NoteScreenState extends State<NoteScreen> {
   Future save() async {
     titleNode.unfocus();
     contentNode.unfocus();
-    if(widget.snapshot != null) {
-      widget.snapshot.reference
+    if(snapshot != null) {
+      snapshot.reference
               .update(
                 {
                   "title": titleCon.text.toString(),
                   "content": contentCon.text.toString().trim(),
-                  "list": DatabaseHelper.listOfLists[widget.index]
+                  "list": DatabaseHelper.listOfLists[widget.listIndex]
                 }
               );
     }
-    await dbHelper.update(
+    dbHelper.update(
       {
-        DatabaseHelper.columnId: widget.note[DatabaseHelper.columnId],
+        DatabaseHelper.columnId: note[DatabaseHelper.columnId],
         DatabaseHelper.columnTitle: titleCon.text.toString(),
         DatabaseHelper.columnContent: contentCon.text.toString().trim(),
         DatabaseHelper.columnDate: pickedDate,
-        DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.index],
+        DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.listIndex],
       },
     ).then((value) {
       Navigator.pop(context);
@@ -194,14 +239,14 @@ class _NoteScreenState extends State<NoteScreen> {
     final DateTime d = await showDatePicker(
       context: context,
       initialDate: (pickedDate == null)?DateTime.now():DateTime.parse(pickedDate),
-      firstDate: DateTime(2019),
-      lastDate: DateTime(2025),
+      firstDate: DateTime(DateTime.now().year - 1),
+      lastDate: DateTime(DateTime.now().year + 5),
     );
 
     if(d != null){
       picked = new DateTime(d.year, d.month, d.day);
-      if(widget.snapshot != null) {
-        widget.snapshot.reference.update({
+      if(snapshot != null) {
+        snapshot.reference.update({
           DatabaseHelper.columnDate: Timestamp.fromDate(picked)
         });
       }
@@ -219,8 +264,8 @@ class _NoteScreenState extends State<NoteScreen> {
     if(t != null) {
       DateTime temp = DateTime.parse(pickedDate);
       DateTime picked = new DateTime(temp.year, temp.month, temp.day, t.hour, t.minute);
-      if(widget.snapshot != null) {
-        widget.snapshot.reference.update({
+      if(snapshot != null) {
+        snapshot.reference.update({
           DatabaseHelper.columnDate: Timestamp.fromDate(picked)
         });
       }

@@ -25,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  Stream list;
+  Stream list1;
   String email;
   bool conn = false;
   final dbHelper = DatabaseHelper.instance;
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     getList().then((value) {
       setState(() {
-        list = value;
+        list1 = value;
       });
     });
     _connectivitySubscription =  Connectivity().onConnectivityChanged.listen(getInternet);
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getMap() async {
     dbHelper.getLists();
-    dbHelper.queryAllRows().then((value) {
+    dbHelper.querySortedTable().then((value) {
       setState(() {
         notes = value;
         loadSQL = true;
@@ -191,8 +191,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                       });
                     });
-                    //dbHelper.printTable();
-                    checkSync();
+                    /*dbHelper.printTable();
+                    notes.forEach((element) {
+                      print(element.toString() + "\n");
+                    });*/
+                    //checkSync();
+                    dbHelper.querySortedTable();
                   },
                 ),
 
@@ -224,6 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ScreenUtil().setHeight(10)
                             ),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
 
                                 Text(
@@ -289,8 +294,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         body: StreamBuilder<QuerySnapshot>(
-          stream: list,
+          stream: list1,
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+            List<Map<String, dynamic>> fireNotes = [];
+            if(snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
+              bool hasDate = false;
+              for(int i=0;i<snapshot.data.docs.length;i++){
+                Map<String, dynamic> temp = snapshot.data.docs[i].data();
+                temp['ref'] = snapshot.data.docs[i].reference;
+                fireNotes.add(temp);
+                if(temp['date'] != null)
+                  hasDate = true;
+              }
+              List<Map<String, dynamic>> temp1 = [];
+              List<Map<String, dynamic>> temp2 = [];
+              if (hasDate) {
+                for(int i=0;i<fireNotes.length;i++){
+                  if(fireNotes[i]['date'] != null){
+                    temp1.add(fireNotes[i]);
+                  } else {
+                    temp2.add(fireNotes[i]);
+                  }
+                }
+                temp1.sort((a,b) => a['date'].compareTo(b['date']));
+                fireNotes = [];
+                fireNotes.addAll(temp1);
+                fireNotes.addAll(temp2);
+              }
+            }
+
             if(!loadSQL){
 
               return Center(
@@ -320,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
 
-            } else if(snapshot.data.docs.length == 0 && notes.length == 0) {
+            } else if(fireNotes.length == 0 && notes.length == 0) {
               return Container(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -464,28 +497,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: (conn)?snapshot.data.docs.length:notes.length,
+                      itemCount: (conn)?(fireNotes.length):notes.length,
                       itemBuilder: (context, pos) {
+                        String s1="",s2= "";
+                        print(notes[pos]['id'].toString() + "\t" + notes[pos]['title'].toString() + "\t" +notes[pos]['content'].toString() + "\t" +notes[pos]['date'].toString() + "\t" +notes[pos]['done'].toString() + "\t" +notes[pos]['list'].toString() + "\t");
+                        print(fireNotes[pos]['id'].toString() + "\t" + fireNotes[pos]['title'].toString() + "\t" +fireNotes[pos]['content'].toString() + "\t" +fireNotes[pos]['date'].toString() + "\t" +fireNotes[pos]['done'].toString() + "\t" +fireNotes[pos]['list'].toString() + "\t" +fireNotes[pos]['ref'].toString() + "\t" );
                         if(notes[pos]['content'].toString() == "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb"){
                           return Container();
-                        }
-                        if((conn
-                            && snapshot.data.docs[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString())
-                            || notes[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString()) {
-
+                        } else if(notes[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString()) {
                           return Container();
-
                         } else {
-
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
                                   context,
                                   new MaterialPageRoute(
                                     builder: (context) => NoteScreen(
-                                      snapshot: (conn)?snapshot.data.docs[pos]:null,
+                                      ref: (conn)?fireNotes[pos]['ref']:null,
                                       note: notes[pos],
-                                      index: listIndex,
+                                      index: notes[pos]['id'],
+                                      listIndex: listIndex,
+                                      conn: conn,
+                                      create: false,
                                     ),
                                   )).then((value) {
                                 getMap();
@@ -494,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Card(
                               child: Container(
                                 padding: EdgeInsets.fromLTRB(
-                                    ScreenUtil().setWidth(20),
+                                    ScreenUtil().setWidth(10),
                                     ScreenUtil().setHeight(10),
                                     ScreenUtil().setWidth(20),
                                     ScreenUtil().setHeight(10)),
@@ -502,46 +535,66 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Container(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                      child: Row(
                                         children: [
-                                          Text(
-                                            (conn)?snapshot.data.docs[pos].data()['title']:notes[pos]['title'].toString(),
-                                            style: TextStyle(fontSize: 20),
+
+                                          Checkbox(
+                                            value: (conn)
+                                                    ?((fireNotes[pos]['done'] == null)
+                                                      ?false
+                                                      :(fireNotes[pos]['done'] == 1)?true:false)
+                                                    :((notes[pos]['done'] == null)
+                                                      ?false
+                                                      :(notes[pos]['done'] == 1)?true:false
+                                                    ),
+                                            onChanged: (b) {
+                                              fireNotes[pos]['ref'].update({
+                                                "done": (b)?1:0
+                                              });
+                                              var temp = notes;
+                                              temp[pos]['done'] = (b)?1:0;
+                                              dbHelper.update(temp[pos]).then((value) {
+                                                getMap();
+                                              });
+                                            },
                                           ),
-                                          SizedBox(
-                                            height: ScreenUtil().setHeight(5),
-                                          ),
-                                          Text(
-                                            (conn)?(
-                                              (snapshot.data
-                                                      .docs[pos]
-                                                      .data()['date'] == null)?
-                                                snapshot.data
-                                                        .docs[pos]
-                                                        .data()['content']:
-                                              DateFormat.yMd().add_jm().format(
-                                                DateTime.fromMillisecondsSinceEpoch(
-                                                        snapshot.data
-                                                              .docs[pos]
-                                                              .data()['date'].seconds * 1000
-                                                )
-                                              ).toString()
-                                            ):(
-                                              (notes[pos]['date'] == null)?
-                                                notes[pos]['content'].toString():
-                                                DateFormat.yMd().add_jm().format(
-                                                        DateTime.parse(
-                                                                notes[pos]['date']
-                                                        )
-                                                ).toString()
-                                            ),
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.black.withOpacity(0.65)),
-                                                overflow: TextOverflow.ellipsis,
+
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                (conn)?fireNotes[pos]['title'].toString():notes[pos]['title'].toString(),
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              SizedBox(
+                                                height: ScreenUtil().setHeight(5),
+                                              ),
+                                              Text(
+                                                (conn)?(
+                                                  (fireNotes[pos]['date'] == null)
+                                                          ? fireNotes[pos]['content']
+                                                          : DateFormat.yMd().add_jm().format(
+                                                            DateTime.fromMillisecondsSinceEpoch(
+                                                              fireNotes[pos]['date'].seconds * 1000
+                                                    )
+                                                  ).toString()
+                                                ):(
+                                                  (notes[pos]['date'] == null)?
+                                                    notes[pos]['content'].toString():
+                                                    DateFormat.yMd().add_jm().format(
+                                                            DateTime.parse(
+                                                                    notes[pos]['date']
+                                                            )
+                                                    ).toString()
+                                                ),
+                                                maxLines: 2,
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.black.withOpacity(0.65)),
+                                                    overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -549,9 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     IconButton(
                                       onPressed: () {
                                         if (conn) {
-                                          collectionReference
-                                              .doc(snapshot.data.docs[pos].id)
-                                              .delete();
+                                          fireNotes[pos]['ref'].delete();
                                         }
                                         dbHelper.delete(notes[pos][DatabaseHelper.columnId]).then((value) {
                                           getMap();
@@ -573,6 +624,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           },
         ),
+
       ),
     );
   }
@@ -580,8 +632,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future _insert() async {
     int p = await dbHelper.queryLastId();
     p = p + 1;
-    DocumentSnapshot snapshot;
-    DocumentReference ref;
     Map<String, dynamic> row = {
       DatabaseHelper.columnId: p,
       DatabaseHelper.columnTitle: "",
@@ -590,18 +640,14 @@ class _HomeScreenState extends State<HomeScreen> {
       DatabaseHelper.columnList: DatabaseHelper.listOfLists[listIndex]
     };
     notes.add(row);
-    if (conn) {
-      ref = await collectionReference.add(row);
-      snapshot = await ref.get();
-    }
-    await dbHelper.insert(row);
     Navigator.push(
             context,
             new MaterialPageRoute(
               builder: (context) => NoteScreen(
-                snapshot: (conn)?snapshot:null,
-                note: row,
-                index: listIndex,
+                index: p,
+                listIndex: listIndex,
+                create: true,
+                conn: conn,
               ),
             )).then((value) {
       getMap();
@@ -619,9 +665,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (snapshot.docs[i]['id'] == notes[j]['id']) {
               collectionReference.doc(snapshot.docs[i].id).update({
+                "done": notes[j]['done'],
                 "title": notes[j]['title'],
                 "content": notes[j]['content'],
-                "date": (notes[j]['date'] != null)?Timestamp.fromDate(DateTime.parse(notes[i]['date'])):null,
+                "date": (notes[j]['date'] != null)?Timestamp.fromDate(DateTime.parse(notes[j]['date'])):null,
                 "list": notes[j]['list']
               });
             } else if(snapshot.docs[i]['id'] > notes[j]['id']) {
@@ -699,6 +746,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
         });
         collectionReference.add(temp);
+        getMap();
       }
     }
   }

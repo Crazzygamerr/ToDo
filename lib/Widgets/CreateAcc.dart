@@ -190,6 +190,7 @@ class _CreateAccState extends State<CreateAcc> {
                         builder: (context) => HomeScreen(notes: [
                           {
                             DatabaseHelper.columnId: 0,
+                            DatabaseHelper.columnDone: 0,
                             DatabaseHelper.columnTitle: 'Hey there!',
                             DatabaseHelper.columnContent  : "",
                             DatabaseHelper.columnDate: null,
@@ -207,6 +208,7 @@ class _CreateAccState extends State<CreateAcc> {
   void _insert() async {
     final dbHelper = DatabaseHelper.instance;
     Map<String, dynamic> row = {
+      DatabaseHelper.columnDone: 0,
       DatabaseHelper.columnTitle: 'Hey there!',
       DatabaseHelper.columnContent  : "",
       DatabaseHelper.columnList: "Default"
