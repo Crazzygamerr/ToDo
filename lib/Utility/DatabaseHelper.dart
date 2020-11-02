@@ -202,6 +202,17 @@ class DatabaseHelper {
         DatabaseHelper.columnList: element[DatabaseHelper.columnList],
       });
     });
+    List<Map<String, dynamic>> doneList = [];
+    for(int i=0;i<list.length;i++){
+      if(list[i]['done'] != null && list[i]['done'] == 1)
+        doneList.add(list[i]);
+    }
+    for(int i=0;i<list.length;i++){
+      if(list[i]['done'] != null && list[i]['done'] == 1)
+        list.removeAt(i);
+    }
+    list.addAll(doneList);
+    print(list);
     return list;
   }
 

@@ -171,6 +171,7 @@ class _CreateAccState extends State<CreateAcc> {
       _insert();
       FirebaseFirestore.instance.collection("Users").doc(emailCon.text.toString()).set({
         "Create Date": DateTime.now(),
+        "lists": ["Default"]
       });
       FirebaseFirestore.instance
           .collection("Users")

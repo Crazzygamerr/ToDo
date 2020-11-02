@@ -42,27 +42,15 @@ class _NoteScreenState extends State<NoteScreen> {
   
   @override
   void initState() {
+    print("NOTESCREEN....notes............" + widget.note.toString());
     note = widget.note;
     index = widget.index;
     create = widget.create;
     if (!create) {
-      
-      if(widget.ref != null) {
-        getSnap(widget.ref).then((value) {
-          snapshot = value;
-          titleCon.text = snapshot.data()['title'].toString();
-          contentCon.text = (snapshot.data()['content'].toString() == null)?"":snapshot.data()['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
-          if(snapshot.data()['date'] != null) {
-            DateTime d = DateTime.fromMillisecondsSinceEpoch(
-                    snapshot.data()['date'].seconds * 1000);
-            pickedDate = d.toIso8601String();
-          }
-        });
-      } else {
-        titleCon.text = note['title'].toString();
-        contentCon.text = (note['content'].toString() == null)?"":note['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
-        pickedDate = note['date'];
-      }
+
+      titleCon.text = note['title'].toString();
+      contentCon.text = (note['content'].toString() == null)?"":note['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
+      pickedDate = note['date'];
       if(pickedDate != null) {
         var temp = DateTime.parse(pickedDate);
         time = new TimeOfDay(hour: temp.hour, minute: temp.minute);
@@ -158,7 +146,6 @@ class _NoteScreenState extends State<NoteScreen> {
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: "Content",
                     hintStyle: TextStyle(
                       color: Colors.grey,
                     ),

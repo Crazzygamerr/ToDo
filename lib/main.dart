@@ -42,11 +42,19 @@ class _LoadingState extends State<Loading> {
     super.initState();
     SharedPref.getUserLogin().then((value) {
       if(value){
-        Navigator.pushAndRemoveUntil(
-                context,
-                new MaterialPageRoute(
-                        builder: (context) => HomeScreen()
-                ), (route) => false);
+        List<Map<String, dynamic>> notes = [];
+        final dbHelper = DatabaseHelper.instance;
+        dbHelper.getLists();
+        dbHelper.querySortedTable().then((value) {
+          notes = value;
+          Navigator.pushAndRemoveUntil(
+                  context,
+                  new MaterialPageRoute(
+                          builder: (context) => HomeScreen(
+                            notes: notes,
+                          )
+                  ), (route) => false);
+        });
       } else {
         setState(() {
           load = true;
