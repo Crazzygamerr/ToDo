@@ -52,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
     _connectivitySubscription =  Connectivity().onConnectivityChanged.listen(getInternet);
-    checkSync();
     super.initState();
   }
 
@@ -139,7 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     });
-    checkSync();
+    if(mounted && conn)
+      checkSync();
   }
 
   @override
@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     /*notes.forEach((element) {
                       print(element.toString() + "\n");
                     });*/
-                    //checkSync();
+                    checkSync();
                     //dbHelper.querySortedTable();
                   },
                 ),
@@ -278,9 +278,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (_) => AlertDialog(
-                                        title: Text(
-                                          "Are you sure you want to delete ${DatabaseHelper.listOfLists[pos]}?",
-                                          overflow: TextOverflow.ellipsis,
+                                        title: Container(
+                                          //width: ScreenUtil().setWidth(400),
+                                          child: Text(
+                                            "Are you sure you want to delete \"${DatabaseHelper.listOfLists[pos]}\"?",
+                                            maxLines: 3,
+                                            style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(17)
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                         actions: [
                                           FlatButton(
@@ -294,9 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             onPressed: (){
                                               Navigator.pop(context);
                                               drop(pos).then((value) {
-                                                setState(() {
-                                                  listIndex = 0;
-                                                });
+                                                listIndex = 0;
+                                                getMap();
                                               });
                                             },
                                           ),
@@ -555,9 +561,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: notes.length,
                       itemBuilder: (context, pos) {
 
-                        //print(notes[pos]['id'].toString() + "\t" + notes[pos]['title'].toString() + "\t" +notes[pos]['content'].toString() + "\t" +notes[pos]['date'].toString() + "\t" +notes[pos]['done'].toString() + "\t" +notes[pos]['list'].toString() + "\t");
-                        //if(pos<fireNotes.length)
-                          //print(fireNotes[pos]['id'].toString() + "\t" + fireNotes[pos]['title'].toString() + "\t" +fireNotes[pos]['content'].toString() + "\t" +fireNotes[pos]['date'].toString() + "\t" +fireNotes[pos]['done'].toString() + "\t" +fireNotes[pos]['list'].toString() + "\t" +fireNotes[pos]['ref'].toString() + "\t" );
+                        print(notes[pos]['id'].toString() + "\t" + notes[pos]['title'].toString() + "\t" +notes[pos]['content'].toString() + "\t" +notes[pos]['date'].toString() + "\t" +notes[pos]['done'].toString() + "\t" +notes[pos]['list'].toString() + "\t");
+                        if(pos<fireNotes.length)
+                          print("..........."+fireNotes[pos]['id'].toString() + "\t" + fireNotes[pos]['title'].toString() + "\t" +fireNotes[pos]['content'].toString() + "\t" +fireNotes[pos]['date'].toString() + "\t" +fireNotes[pos]['done'].toString() + "\t" +fireNotes[pos]['list'].toString() + "\t" +fireNotes[pos]['ref'].toString() + "\t" );
                         if(notes[pos]['content'].toString() == "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb"){
                           return Container();
                         } else if(notes[pos]['list'].toString() != DatabaseHelper.listOfLists[listIndex].toString()) {
@@ -606,15 +612,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               ?true
                                                               :false,
                                                 onChanged: (b) {
-                                                  fireNotes[pos]['ref'].update({
-                                                    "done": (b)?1:0
-                                                  });
+                                                  if (conn) {
+                                                    fireNotes[pos]['done'] = (b)?1:0;
+                                                    fireNotes[pos]['ref'].update({
+                                                      "done": (b)?1:0
+                                                    });
+                                                  }
                                                   var temp = notes;
                                                   temp[pos]['done'] = (b)?1:0;
                                                   dbHelper.update(temp[pos]).then((value) {
                                                     getMap();
                                                   });
                                                 },
+                                                activeColor: Colors.white,
+                                                checkColor: Colors.green,
                                               ),
 
                                               Column(
@@ -788,7 +799,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void checkSync() async {
     List<Map<String, dynamic>> sqlNotes = await dbHelper.queryAllRows("id");
-    print(sqlNotes);
     FirebaseFirestore.instance
             .collection("Users")
             .doc(email).get().then((value) {
@@ -808,7 +818,6 @@ class _HomeScreenState extends State<HomeScreen> {
               date = d.toIso8601String();
             }
             temp['date'] = date;
-            print(temp);
             bool update = false;
             for(Map element in sqlNotes){
               if(temp['id'] == element['id']){
@@ -817,11 +826,9 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             }
             if(update) {
-              print("Update");
               temp['ref'] = snapshot.docs[i].reference;
               cloudNotes.add(temp);
             } else {
-              print("delete");
               snapshot.docs[i].reference.delete();
             }
           }
@@ -935,8 +942,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
         });
         collectionReference.add(temp);
-        getMap();
       }
+      getMap();
     }
   }
 

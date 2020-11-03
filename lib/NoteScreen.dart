@@ -49,7 +49,7 @@ class _NoteScreenState extends State<NoteScreen> {
     if (!create) {
 
       titleCon.text = note['title'].toString();
-      contentCon.text = (note['content'].toString() == null)?"":note['content'].toString() + "\n\n\n\n\n\n\n\n\n\n";
+      contentCon.text = (note['content'].toString() == null)?"":note['content'].toString();
       pickedDate = note['date'];
       if(pickedDate != null) {
         var temp = DateTime.parse(pickedDate);
@@ -63,7 +63,7 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   Future _create() async {
-    contentCon.text = "\n\n\n\n\n\n\n\n\n\n";
+    //contentCon.text = "\n\n\n\n\n\n\n\n\n\n";
     DocumentReference ref;
     note = {
       DatabaseHelper.columnId: index,
@@ -100,6 +100,7 @@ class _NoteScreenState extends State<NoteScreen> {
         return false;
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
@@ -107,21 +108,8 @@ class _NoteScreenState extends State<NoteScreen> {
             },
             icon: Icon(Icons.arrow_back),
           ),
-          title: TextFormField(
-            keyboardType: TextInputType.text,
-            maxLines: 1,
-            controller: titleCon,
-            focusNode: titleNode,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "Title",
-              hintStyle: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-            onEditingComplete: () {
-              contentNode.requestFocus();
-            },
+          title: Text(
+            (widget.create)?"Add item":"Edit item"
           ),
         ),
         body: SingleChildScrollView(
@@ -134,22 +122,26 @@ class _NoteScreenState extends State<NoteScreen> {
             ),
             child: Column(
               children: [
+
                 TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  //minLines: 30,
-                  controller: contentCon,
-                  focusNode: contentNode,
-                  /* style: TextStyle(
-                    fontSize: 25,
-                  ), */
-                  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.text,
+                  maxLines: 1,
+                  controller: titleCon,
+                  focusNode: titleNode,
+                  autofocus: true,
+                  style: TextStyle(
+                    fontSize: ScreenUtil().setSp(22)
+                  ),
                   decoration: InputDecoration(
+                    labelText: "Title",
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: Colors.grey,
                     ),
                   ),
+                  onEditingComplete: () {
+                    contentNode.requestFocus();
+                  },
                 ),
 
                 Row(
@@ -185,6 +177,33 @@ class _NoteScreenState extends State<NoteScreen> {
                     ),
                   ],
                 ):Container(),
+
+                GestureDetector(
+                  onTap: () {
+                    contentNode.requestFocus();
+                  },
+                  child: Container(
+                    height: ScreenUtil().setHeight(350),
+                    child: TextFormField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      //minLines: 30,
+                      controller: contentCon,
+                      focusNode: contentNode,
+                      style: TextStyle(
+                              fontSize: ScreenUtil().setSp(22)
+                      ),
+                      textInputAction: TextInputAction.newline,
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
               ],
             ),

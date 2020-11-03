@@ -35,8 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
     ScreenUtil.init(context,
         width: 411.4, height: 866.3, allowFontScaling: true);
 
-    emailCon.text = "test1@test.com";
-    passCon.text = "123456";
+    //emailCon.text = "test1@test.com";
+    //passCon.text = "123456";
 
     return Container(
       child: Column(
@@ -171,7 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void loginFunc() async {
-    //TODO: Change email and pass
     FocusScope.of(context).unfocus();
     List<Map<String, dynamic>> notes = [];
 
@@ -187,42 +186,43 @@ class _LoginScreenState extends State<LoginScreen> {
         for(var element in temp){
           DatabaseHelper.listOfLists.add(element.toString());
         }
-      });
-      FirebaseFirestore.instance
-              .collection("Users")
-              .doc(emailCon.text.toString())
-              .collection("todo")
-              .orderBy("id")
-              .get().then((value) {
-        value.docs.forEach((element) {
-          String date;
-          if(element.data()['date'] != null){
-            DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
-            date = d.toIso8601String();
-          }
-          Map<String, dynamic> temp = {
-            DatabaseHelper.columnId: element.data()['id'],
-            DatabaseHelper.columnDone: (element.data()['done'] != null)?element.data()['done']:null,
-            DatabaseHelper.columnTitle: element.data()['title'],
-            DatabaseHelper.columnContent: element.data()['content'],
-            DatabaseHelper.columnDate: date,
-            DatabaseHelper.columnList: element.data()['list']
-          };
-          notes.add(temp);
+        FirebaseFirestore.instance
+                .collection("Users")
+                .doc(emailCon.text.toString())
+                .collection("todo")
+                .orderBy("id")
+                .get().then((value) {
+          value.docs.forEach((element) {
+            String date;
+            if(element.data()['date'] != null){
+              DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
+              date = d.toIso8601String();
+            }
+            Map<String, dynamic> temp = {
+              DatabaseHelper.columnId: element.data()['id'],
+              DatabaseHelper.columnDone: (element.data()['done'] != null)?element.data()['done']:null,
+              DatabaseHelper.columnTitle: element.data()['title'],
+              DatabaseHelper.columnContent: element.data()['content'],
+              DatabaseHelper.columnDate: date,
+              DatabaseHelper.columnList: element.data()['list']
+            };
+            notes.add(temp);
+          });
+          notes = sortList(notes);
+          _insert(notes);
+          SharedPref.setUser(emailCon.text.toString(), true).then((value) {
+            Navigator.pushAndRemoveUntil(
+                    context,
+                    new MaterialPageRoute(
+                            builder: (context) => HomeScreen(
+                              notes: notes,
+                            )
+                    ), (route) => false);
+          });
         });
-        _insert(notes);
       });
-      SharedPref.setUser(emailCon.text.toString(), true).then((value) {
-        Navigator.pushAndRemoveUntil(
-                context,
-                new MaterialPageRoute(
-                        builder: (context) => HomeScreen(
-                          notes: notes,
-                        )
-                ), (route) => false);
-        });
   }).catchError((onError) {
-    bool b = false;
+      bool b = false;
       FirebaseFirestore.instance
               .collection("Users")
               .doc(emailCon.text.toString())
@@ -232,24 +232,52 @@ class _LoginScreenState extends State<LoginScreen> {
           b = true;
       });
 
-    if(onError.code == "network-request-failed"){
-      Fluttertoast.showToast(
-        msg: "Network request failed",
-        textColor: Colors.black,
-        fontSize: 20,
-        toastLength: Toast.LENGTH_LONG,
-      );
-    } else if(b) {
-      _formKey1.currentState.validate();
-    } else {
-      _formKey2.currentState.validate();
-    }
+      if(onError.code == "network-request-failed"){
+        Fluttertoast.showToast(
+          msg: "Network request failed",
+          textColor: Colors.black,
+          fontSize: 20,
+          toastLength: Toast.LENGTH_LONG,
+        );
+      } else if(b) {
+        _formKey1.currentState.validate();
+      } else {
+        _formKey2.currentState.validate();
+      }
 
   });
   }
 
   Future _insert(List<Map<String, dynamic>> row) async {
     await dbHelper.batchInsert(row);
+  }
+
+  List<Map<String, dynamic>> sortList(List<Map<String, dynamic>> fireNotes) {
+
+    List<Map<String, dynamic>> temp1 = [];
+    List<Map<String, dynamic>> temp2 = [];
+    for(int i=0;i<fireNotes.length;i++){
+      if(fireNotes[i]['date'] != null){
+        temp1.add(fireNotes[i]);
+      } else {
+        temp2.add(fireNotes[i]);
+      }
+    }
+    temp1.sort((a,b) => a['date'].compareTo(b['date']));
+    fireNotes = [];
+    fireNotes.addAll(temp1);
+    fireNotes.addAll(temp2);
+    List<Map<String, dynamic>> doneList = [];
+    for(int i=0;i<fireNotes.length;i++){
+      if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
+        doneList.add(fireNotes[i]);
+    }
+    for(int i=0;i<fireNotes.length;i++){
+      if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
+        fireNotes.removeAt(i);
+    }
+    fireNotes.addAll(doneList);
+    return fireNotes;
   }
 
 }

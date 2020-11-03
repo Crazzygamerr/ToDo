@@ -128,7 +128,7 @@ class DatabaseHelper {
   Future printTable() async {
     var x = await queryAllRows(columnId);
     x.forEach((element) {
-      print("........." + element.toString() + "\n");
+      print("-----------" + element.toString() + "\n");
     });
   }
 
@@ -204,12 +204,11 @@ class DatabaseHelper {
     });
     List<Map<String, dynamic>> doneList = [];
     for(int i=0;i<list.length;i++){
-      if(list[i]['done'] != null && list[i]['done'] == 1)
+      if(list[i]['done'] != null && list[i]['done'] == 1) {
         doneList.add(list[i]);
-    }
-    for(int i=0;i<list.length;i++){
-      if(list[i]['done'] != null && list[i]['done'] == 1)
         list.removeAt(i);
+        i--;
+      }
     }
     list.addAll(doneList);
     print(list);

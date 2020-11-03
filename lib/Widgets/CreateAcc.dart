@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CreateAcc extends StatefulWidget {
   @override
@@ -110,7 +111,7 @@ class _CreateAccState extends State<CreateAcc> {
                         ScreenUtil().setHeight(10),
                         ScreenUtil().setWidth(10),
                         ScreenUtil().setHeight(10)),
-                    hintText: "Enter your password id",
+                    hintText: "Enter your password",
                   ),
                 ),
               ),
@@ -201,7 +202,28 @@ class _CreateAccState extends State<CreateAcc> {
                 ), (route) => false);
       });
     }).catchError((onError) {
-      _formKey2.currentState.validate();
+      bool b = false;
+      FirebaseFirestore.instance
+              .collection("Users")
+              .doc(emailCon.text.toString())
+              .get()
+              .then((value) {
+        if (!value.exists)
+          b = true;
+      });
+
+      if(onError.code == "network-request-failed"){
+        Fluttertoast.showToast(
+          msg: "Network request failed",
+          textColor: Colors.black,
+          fontSize: 20,
+          toastLength: Toast.LENGTH_LONG,
+        );
+      } else if(b) {
+        _formKey1.currentState.validate();
+      } else {
+        _formKey2.currentState.validate();
+      }
     });
     
   }
