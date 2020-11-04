@@ -69,9 +69,7 @@ class DatabaseHelper {
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
-        $columnPriority INTEGER,
         $columnList STRING,
-        $columnPriority INTEGER,
       )
     ''');
   }
@@ -149,10 +147,10 @@ class DatabaseHelper {
         columnTitle: element[columnTitle],
         columnContent: element[columnContent],
         columnDone: element[columnDone],
-        columnFullDay: element[columnFullDay],
+        //columnFullDay: element[columnFullDay],
         columnDate: element[columnDate],
         columnList: element[columnList],
-        columnPriority: element[columnPriority]
+        //columnPriority: element[columnPriority]
       });
     });
     if(x != null)
@@ -193,9 +191,9 @@ class DatabaseHelper {
         columnContent: element[columnContent],
         columnDone: element[columnDone],
         columnDate: element[columnDate],
-        columnFullDay: element[columnFullDay],
+        //columnFullDay: element[columnFullDay],
         columnList: element[columnList],
-        columnPriority: element[columnPriority]
+        //columnPriority: element[columnPriority]
       });
     });
     nullList.forEach((element) {
@@ -205,9 +203,9 @@ class DatabaseHelper {
         columnContent: element[columnContent],
         columnDone: element[columnDone],
         columnDate: element[columnDate],
-        columnFullDay: element[columnFullDay],
+        //columnFullDay: element[columnFullDay],
         columnList: element[columnList],
-        columnPriority: element[columnPriority]
+        //columnPriority: element[columnPriority]
       });
     });
     List<Map<String, dynamic>> doneList = [];
