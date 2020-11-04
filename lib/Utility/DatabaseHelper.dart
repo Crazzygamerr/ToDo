@@ -69,7 +69,9 @@ class DatabaseHelper {
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
-        $columnList STRING
+        $columnPriority INTEGER,
+        $columnList STRING,
+        $columnPriority INTEGER,
       )
     ''');
   }
@@ -143,12 +145,14 @@ class DatabaseHelper {
     List<Map<String, dynamic>> temp = [];
     x.forEach((element) {
       temp.add({
-        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
-        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
-        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
-        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
-        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
-        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+        columnId: element[columnId],
+        columnTitle: element[columnTitle],
+        columnContent: element[columnContent],
+        columnDone: element[columnDone],
+        columnFullDay: element[columnFullDay],
+        columnDate: element[columnDate],
+        columnList: element[columnList],
+        columnPriority: element[columnPriority]
       });
     });
     if(x != null)
@@ -184,22 +188,26 @@ class DatabaseHelper {
     List<Map<String, dynamic>> list = [];
     notNullList.forEach((element) {
       list.add({
-        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
-        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
-        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
-        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
-        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
-        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+        columnId: element[columnId],
+        columnTitle: element[columnTitle],
+        columnContent: element[columnContent],
+        columnDone: element[columnDone],
+        columnDate: element[columnDate],
+        columnFullDay: element[columnFullDay],
+        columnList: element[columnList],
+        columnPriority: element[columnPriority]
       });
     });
     nullList.forEach((element) {
       list.add({
-        DatabaseHelper.columnId: element[DatabaseHelper.columnId],
-        DatabaseHelper.columnTitle: element[DatabaseHelper.columnTitle],
-        DatabaseHelper.columnContent: element[DatabaseHelper.columnContent],
-        DatabaseHelper.columnDone: element[DatabaseHelper.columnDone],
-        DatabaseHelper.columnDate: element[DatabaseHelper.columnDate],
-        DatabaseHelper.columnList: element[DatabaseHelper.columnList],
+        columnId: element[columnId],
+        columnTitle: element[columnTitle],
+        columnContent: element[columnContent],
+        columnDone: element[columnDone],
+        columnDate: element[columnDate],
+        columnFullDay: element[columnFullDay],
+        columnList: element[columnList],
+        columnPriority: element[columnPriority]
       });
     });
     List<Map<String, dynamic>> doneList = [];

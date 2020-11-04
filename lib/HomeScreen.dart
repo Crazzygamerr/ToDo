@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:ToDo/Widgets/Search.dart';
 import 'package:intl/intl.dart';
 
 import 'package:ToDo/Utility/DatabaseHelper.dart';
@@ -159,6 +160,14 @@ class _HomeScreenState extends State<HomeScreen> {
             DatabaseHelper.listOfLists[listIndex],
             overflow: TextOverflow.ellipsis,
           ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: (){
+                //2showSearch(context: context, delegate: Search());
+              },
+            ),
+          ],
         ),
         drawer: Drawer(
           child: Container(
@@ -582,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         builder: (context) => NoteScreen(
                                           ref: (conn)?fireNotes[pos]['ref']:null,
                                           note: notes[pos],
-                                          index: notes[pos]['id'],
+                                          id: notes[pos]['id'],
                                           listIndex: listIndex,
                                           conn: conn,
                                           create: false,
@@ -787,7 +796,7 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             new MaterialPageRoute(
               builder: (context) => NoteScreen(
-                index: p,
+                id: p,
                 listIndex: listIndex,
                 create: true,
                 conn: conn,

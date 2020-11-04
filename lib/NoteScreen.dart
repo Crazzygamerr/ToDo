@@ -11,12 +11,12 @@ class NoteScreen extends StatefulWidget {
   
   final DocumentReference ref;
   final Map<String, dynamic> note;
-  final int index;
+  final int id;
   final int listIndex;
   final bool create;
   final bool conn;
 
-  NoteScreen({Key key, this.ref, this.note, this.index, this.listIndex, this.create, this.conn}) : super(key: key);
+  NoteScreen({Key key, this.ref, this.note, this.id, this.listIndex, this.create, this.conn}) : super(key: key);
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -37,15 +37,16 @@ class _NoteScreenState extends State<NoteScreen> {
 
   DocumentSnapshot snapshot;
   Map<String, dynamic> note;
-  int index;
+  int id, listIndex;
   bool create;
   
   @override
   void initState() {
     print("NOTESCREEN....notes............" + widget.note.toString());
     note = widget.note;
-    index = widget.index;
+    id = widget.id;
     create = widget.create;
+    listIndex = widget.listIndex;
     if (!create) {
 
       titleCon.text = note['title'].toString();
@@ -66,11 +67,11 @@ class _NoteScreenState extends State<NoteScreen> {
     //contentCon.text = "\n\n\n\n\n\n\n\n\n\n";
     DocumentReference ref;
     note = {
-      DatabaseHelper.columnId: index,
+      DatabaseHelper.columnId: id,
       DatabaseHelper.columnTitle: "",
       DatabaseHelper.columnContent: "",
       DatabaseHelper.columnDate: null,
-      DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.listIndex]
+      DatabaseHelper.columnList: DatabaseHelper.listOfLists[listIndex]
     };
     if (widget.conn) {
       ref = await FirebaseFirestore.instance
@@ -160,6 +161,14 @@ class _NoteScreenState extends State<NoteScreen> {
                         _selectDate();
                       },
                     ),
+                    (pickedDate != null)?IconButton(
+                      icon: Icon(Icons.highlight_remove_outlined),
+                      onPressed: () {
+                        setState(() {
+                          pickedDate = null;
+                        });
+                      },
+                    ):Container(),
                   ],
                 ),
 
@@ -175,8 +184,39 @@ class _NoteScreenState extends State<NoteScreen> {
                         _selectTime();
                       },
                     ),
+                    (time != null)?IconButton(
+                      icon: Icon(Icons.highlight_remove_outlined),
+                      onPressed: () {
+                        setState(() {
+                          time = null;
+                          var temp = DateTime.parse(pickedDate);
+                          pickedDate = DateTime(temp.year, temp.month, temp.day, 0, 0).toIso8601String();
+                        });
+                      },
+                    ):Container(),
                   ],
                 ):Container(),
+
+                DropdownButton<int>(
+                  value: listIndex,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  onChanged: (int newValue) {
+                    if(newValue != listIndex){
+                      listIndex = newValue;
+                    }
+                  },
+                  items: List.generate(
+                          DatabaseHelper.listOfLists.length,
+                                  (index){
+                            return DropdownMenuItem(
+                              value: index,
+                              child: Text("${DatabaseHelper.listOfLists[index]}"),
+                            );
+                          }
+                  ),
+                ),
 
                 GestureDetector(
                   onTap: () {
@@ -222,7 +262,8 @@ class _NoteScreenState extends State<NoteScreen> {
                 {
                   "title": titleCon.text.toString(),
                   "content": contentCon.text.toString().trim(),
-                  "list": DatabaseHelper.listOfLists[widget.listIndex]
+                  "date": (pickedDate != null)?Timestamp.fromDate(DateTime.parse(pickedDate)):null,
+                  "list": DatabaseHelper.listOfLists[listIndex],
                 }
               );
     }
