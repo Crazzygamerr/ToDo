@@ -5,7 +5,7 @@ class Provider extends InheritedWidget{
     final Widget child;
     final PageController pageCon;
 
-    Provider({this.child, this.pageCon,});
+    Provider({this.child, this.pageCon,}) : super(child: child);
 
     @override
     bool updateShouldNotify(InheritedWidget oldWidget) {

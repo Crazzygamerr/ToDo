@@ -25,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  Stream list1;
+  Stream<QuerySnapshot> list1;
   String email;
   bool conn = false, loadSQL = false;
   final dbHelper = DatabaseHelper.instance;
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }*/
 
   getInternet(ConnectivityResult result) async {
-    bool real;
+    bool real = false;
     await auth.createUserWithEmailAndPassword(email: "test@test.com", password: "testString")
             .catchError((onError){
       if(onError.code == "network-request-failed")
@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
     ScreenUtil.init(context,
-        width: 411.4, height: 866.3, allowFontScaling: true);
+        designSize: Size(411.4, 866.3), allowFontScaling: true);
 
     return WillPopScope(
       onWillPop: () async {
@@ -339,6 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       "Default"
                     ];
                     dbHelper.drop();
+                    auth.signOut();
                     SharedPref.setUserLogin(false);
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
@@ -354,10 +355,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
             List<Map<String, dynamic>> fireNotes = [];
             if(conn && snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
+              var ss = snapshot.data;
               bool hasDate = false;
-              for(int i=0;i<snapshot.data.docs.length;i++){
-                Map<String, dynamic> temp = snapshot.data.docs[i].data();
-                temp['ref'] = snapshot.data.docs[i].reference;
+              for(int i=0;(ss != null && i<ss.docs.length);i++){
+                Map<String, dynamic> temp = ss.docs[i].data();
+                temp['ref'] = ss.docs[i].reference;
                 fireNotes.add(temp);
                 if(temp['date'] != null)
                   hasDate = true;
@@ -580,7 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             children: [
 
-                              dateHead(notes[pos]['date'], notes[pos]['done'], firstNote),
+                              dateHead((notes[pos]['date'] != null)?notes[pos]['date']:"", (notes[pos]['done'] != null)?notes[pos]['done']:0, firstNote),
 
                               GestureDetector(
                                 onTap: () {
@@ -621,13 +623,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               :false,
                                                 onChanged: (b) {
                                                   if (conn) {
-                                                    fireNotes[pos]['done'] = (b)?1:0;
+                                                    fireNotes[pos]['done'] = (b != null)?((b)?1:0):0;
                                                     fireNotes[pos]['ref'].update({
-                                                      "done": (b)?1:0
+                                                      "done": (b != null)?((b)?1:0):0
                                                     });
                                                   }
                                                   var temp = notes;
-                                                  temp[pos]['done'] = (b)?1:0;
+                                                  temp[pos]['done'] = (b != null)?((b)?1:0):0;
                                                   dbHelper.update(temp[pos]).then((value) {
                                                     getMap();
                                                   });
@@ -705,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget dateHead(String dateString, int done, List<bool> firstNote) {
 
-    if(done != null && done == 1) {
+    if(done == 1) {
       if(firstNote[6]) {
         firstNote[6] = false;
         return Container(
@@ -714,7 +716,7 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         return Container();
       }
-    } else if(dateString == null){
+    } else if(dateString == ""){
       if(firstNote[5]) {
         firstNote[5] = false;
         return Container(
@@ -820,7 +822,7 @@ class _HomeScreenState extends State<HomeScreen> {
           List<Map<String, dynamic>> cloudNotes = [];
           for(int i=0;i<snapshot.docs.length;i++){
             Map<String, dynamic> temp = snapshot.docs[i].data();
-            String date;
+            String date = "";
             if(temp['date'] != null){
               DateTime d = DateTime.fromMillisecondsSinceEpoch(temp['date'].seconds * 1000);
               date = d.toIso8601String();
@@ -843,7 +845,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (cloudNotes.length == 0) {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp;
+              Timestamp timestamp = new Timestamp(0, 0);
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               collectionReference.add({
@@ -851,17 +853,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 "done": sqlNotes[i]['done'],
                 "title": sqlNotes[i]['title'],
                 "content": sqlNotes[i]['content'],
-                "date": timestamp,
+                "date": (sqlNotes[i]['date'] != null || sqlNotes[i]['date'] != "")?timestamp:"",
                 "list": sqlNotes[i]['list']
               });
             }
           } else {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp;
+              Timestamp timestamp = new Timestamp(0, 0);
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               bool update = false;
-              DocumentReference cloudRef;
+              DocumentReference cloudRef = cloudNotes[0]['ref'];
               for(Map element in cloudNotes){
                 if(sqlNotes[i]['id'] == element['id']){
                   update = true;
@@ -874,7 +876,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   "done": sqlNotes[i]['done'],
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
-                  "date": timestamp,
+                  "date": (sqlNotes[i]['date'] != null && sqlNotes[i]['date'] != "")?timestamp:"",
                   "list": sqlNotes[i]['list']
                 });
               } else {
@@ -883,7 +885,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   "done": sqlNotes[i]['done'],
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
-                  "date": timestamp,
+                  "date": (sqlNotes[i]['date'] != null && sqlNotes[i]['date'] != "")?timestamp:"",
                   "list": sqlNotes[i]['list']
                 });
               }
@@ -896,7 +898,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future addList() async {
     TextEditingController controller = new TextEditingController();
-    String listName;
+    String listName = "";
     final _formKey = GlobalKey<FormState>();
 
     await showDialog<String>(
@@ -921,7 +923,9 @@ class _HomeScreenState extends State<HomeScreen> {
           FlatButton(
             child: Text("Create"),
             onPressed: (){
-              _formKey.currentState.validate();
+              var state = _formKey.currentState;
+              if(state != null)
+                state.validate();
               if (controller.text.toString() != "" && !DatabaseHelper.listOfLists.contains(controller.text)) {
                 listName =  controller.text.toString();
                 Navigator.pop(context);
@@ -933,7 +937,7 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
     );
 
-    if(listName != null && listName != "") {
+    if(listName != "") {
       var temp = await dbHelper.add({
         "title": DatabaseHelper.listOfLists.length.toString(),
         "content": "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb",

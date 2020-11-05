@@ -153,17 +153,7 @@ class DatabaseHelper {
         //columnPriority: element[columnPriority]
       });
     });
-    if(x != null)
-      return temp;
-    else
-      return [
-        {
-          "_id": 0,
-          "title": "Hey there!",
-          "content": "",
-          "date": null
-        }
-      ];
+    return temp;
   }
 
   Future queryLastId() async {
@@ -174,15 +164,15 @@ class DatabaseHelper {
 
   Future querytables() async {
     Database db = await instance.database;
-    var c = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+    var c = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
     return c;
   }
 
   Future<List<Map<String, dynamic>>> querySortedTable() async {
     Database db = await instance.database;
 
-    List<Map<String, dynamic>> nullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NULL ORDER BY $columnId", null);
-    List<Map<String, dynamic>> notNullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NOT NULL ORDER BY $columnDate", null);
+    List<Map<String, dynamic>> nullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NULL ORDER BY $columnId");
+    List<Map<String, dynamic>> notNullList = await db.rawQuery("SELECT * FROM $table WHERE $columnDate IS NOT NULL ORDER BY $columnDate");
     List<Map<String, dynamic>> list = [];
     notNullList.forEach((element) {
       list.add({

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +14,7 @@ class NoteScreen extends StatefulWidget {
   final bool create;
   final bool conn;
 
-  NoteScreen({Key key, this.ref, this.note, this.id, this.listIndex, this.create, this.conn}) : super(key: key);
+  NoteScreen({this.ref, this.note, this.id = 0, this.listIndex = 0, this.create = false, this.conn = false});
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -93,7 +91,7 @@ class _NoteScreenState extends State<NoteScreen> {
   Widget build(BuildContext context) {
 
     ScreenUtil.init(context,
-            width: 411.4, height: 866.3, allowFontScaling: true);
+            designSize: Size(411.4, 866.3), allowFontScaling: true);
 
     return WillPopScope(
       onWillPop: () async {
@@ -135,7 +133,7 @@ class _NoteScreenState extends State<NoteScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: "Title",
-                    border: InputBorder.none,
+                    //border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: Colors.grey,
                     ),
@@ -145,31 +143,37 @@ class _NoteScreenState extends State<NoteScreen> {
                   },
                 ),
 
-                Row(
-                  children: [
-                    Text(
-                        (pickedDate != null)?DateFormat.yMd().format(
-                        DateTime.parse(
-                          pickedDate
-                        )
-                      ).toString():
-                      "Add due date"
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.calendar_today),
-                      onPressed: () {
-                        _selectDate();
-                      },
-                    ),
-                    (pickedDate != null)?IconButton(
-                      icon: Icon(Icons.highlight_remove_outlined),
-                      onPressed: () {
-                        setState(() {
-                          pickedDate = null;
-                        });
-                      },
-                    ):Container(),
-                  ],
+                SizedBox(
+                  height: ScreenUtil().setHeight(20),
+                ),
+
+                Card(
+                  child: Row(
+                    children: [
+                      Text(
+                          (pickedDate != null)?DateFormat.yMd().format(
+                          DateTime.parse(
+                            pickedDate
+                          )
+                        ).toString():
+                        "Add due date"
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () {
+                          _selectDate();
+                        },
+                      ),
+                      (pickedDate != null)?IconButton(
+                        icon: Icon(Icons.highlight_remove_outlined),
+                        onPressed: () {
+                          setState(() {
+                            pickedDate = null;
+                          });
+                        },
+                      ):Container(),
+                    ],
+                  ),
                 ),
 
                 (pickedDate != null)?Row(
