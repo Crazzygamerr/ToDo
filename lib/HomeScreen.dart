@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       print(element.toString() + "\n");
                     });*/
                     //checkSync();
-                    //dbHelper.querySortedTable();
+                    dbHelper.querySortedTable();
                   },
                   child: Container(
                     //color: Colors.yellow,
@@ -647,7 +647,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: notes.length,
                       itemBuilder: (context, pos) {
 
-                        print(notes[pos]['id'].toString() + "\t" + notes[pos]['title'].toString() + "\t" +notes[pos]['content'].toString() + "\t" +notes[pos]['date'].toString() + "\t" +notes[pos]['done'].toString() + "\t" +notes[pos]['list'].toString() + "\t");
+                        print(notes[pos]['id'].toString() + "\t" + notes[pos]['title'].toString() + "\t" +notes[pos]['content'].toString() + "\t" +notes[pos]['date'].toString() + "\t" +notes[pos]['done'].toString() + "\t" +notes[pos]['list'].toString() + "\t" + notes[pos]['fullDay'].toString());
                         if(pos<fireNotes.length)
                           print("..........."+fireNotes[pos]['id'].toString() + "\t" + fireNotes[pos]['title'].toString() + "\t" +fireNotes[pos]['content'].toString() + "\t" +fireNotes[pos]['date'].toString() + "\t" +fireNotes[pos]['done'].toString() + "\t" +fireNotes[pos]['list'].toString() + "\t" +fireNotes[pos]['ref'].toString() + "\t" );
                         if(notes[pos]['content'].toString() == "3fSX46uKYhH9Z2FuKojZr7CtRV4Lhheb"){
@@ -778,7 +778,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Text(
                                                     (notes[pos]['date'] == null)
                                                             ? notes[pos]['content'].toString()
-                                                            : DateFormat.yMMMMd().add_jm().format(
+                                                            : (notes[pos]['fullDay'] != null && notes[pos]['fullDay'] != 1)
+                                                            ? DateFormat.yMMMMd().add_jm().format(
+                                                                DateTime.parse(
+                                                                        notes[pos]['date']
+                                                                )
+                                                              ).toString()
+                                                            : DateFormat.yMMMMd().format(
                                                                 DateTime.parse(
                                                                         notes[pos]['date']
                                                                 )
@@ -1058,6 +1064,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 "title": sqlNotes[i]['title'],
                 "content": sqlNotes[i]['content'],
                 "date": timestamp,
+                "fullDay": sqlNotes[i]['fullDay'],
                 "list": sqlNotes[i]['list']
               });
             }
@@ -1081,6 +1088,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
                   "date": timestamp,
+                  "fullDay": sqlNotes[i]['fullDay'],
                   "list": sqlNotes[i]['list']
                 });
               } else {
@@ -1090,7 +1098,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
                   "date": timestamp,
-                  "list": sqlNotes[i]['list']
+                  "fullDay": sqlNotes[i]['fullDay'],
+                  "list": sqlNotes[i]['list'],
                 });
               }
             }

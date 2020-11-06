@@ -378,7 +378,9 @@ class _LoginScreenState extends State<LoginScreen> {
               DatabaseHelper.columnTitle: element.data()['title'],
               DatabaseHelper.columnContent: element.data()['content'],
               DatabaseHelper.columnDate: date,
-              DatabaseHelper.columnList: element.data()['list']
+              DatabaseHelper.columnFullDay: (element.data()['fullDay'] != null)?element.data()['fullDay']:null,
+              DatabaseHelper.columnList: element.data()['list'],
+              //DatabaseHelper.columnPriority: (element.data()['priority'] != null)?element.data()['priority']:null,
             };
             notes.add(temp);
           });

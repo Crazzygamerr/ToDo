@@ -51,7 +51,7 @@ class _NoteScreenState extends State<NoteScreen> {
       titleCon.text = note['title'].toString();
       contentCon.text = (note['content'].toString() == null)?"":note['content'].toString();
       pickedDate = note['date'];
-      if(pickedDate != null) {
+      if(pickedDate != null && widget.note['fullDay'] != null && widget.note['fullDay'] != 1) {
         var temp = DateTime.parse(pickedDate);
         time = new TimeOfDay(hour: temp.hour, minute: temp.minute);
       }
@@ -354,7 +354,9 @@ class _NoteScreenState extends State<NoteScreen> {
                   "title": titleCon.text.toString(),
                   "content": contentCon.text.toString().trim(),
                   "date": (pickedDate != null)?Timestamp.fromDate(DateTime.parse(pickedDate)):null,
+                  "fullDay": (time == null)?1:0,
                   "list": DatabaseHelper.listOfLists[listIndex],
+                  //"priority":
                 }
               );
     }
@@ -364,7 +366,9 @@ class _NoteScreenState extends State<NoteScreen> {
         DatabaseHelper.columnTitle: titleCon.text.toString(),
         DatabaseHelper.columnContent: contentCon.text.toString().trim(),
         DatabaseHelper.columnDate: pickedDate,
-        DatabaseHelper.columnList: DatabaseHelper.listOfLists[widget.listIndex],
+        DatabaseHelper.columnFullDay: (time == null)?1:0,
+        DatabaseHelper.columnList: DatabaseHelper.listOfLists[listIndex],
+        //DatabaseHelper.columnPriority:
       },
     ).then((value) {
       Navigator.pop(context);

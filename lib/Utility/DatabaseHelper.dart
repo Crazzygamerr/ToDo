@@ -16,6 +16,8 @@ class DatabaseHelper {
   static final String columnDate = 'date';
   static final String columnDone = 'done';
   static final String columnList = 'list';
+  static final String columnFullDay = 'fullDay';
+  //static final String columnPriority = 'priority';
 
   static List<String> listOfLists = [
     "Default"
@@ -55,6 +57,7 @@ class DatabaseHelper {
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
+        $columnFullDay INTEGER,
         $columnList STRING
       )
     ''');
@@ -69,6 +72,7 @@ class DatabaseHelper {
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
+        $columnFullDay INTEGER,
         $columnList STRING
       )
     ''');
@@ -147,7 +151,7 @@ class DatabaseHelper {
         columnTitle: element[columnTitle],
         columnContent: element[columnContent],
         columnDone: element[columnDone],
-        //columnFullDay: element[columnFullDay],
+        columnFullDay: element[columnFullDay],
         columnDate: element[columnDate],
         columnList: element[columnList],
         //columnPriority: element[columnPriority]
@@ -181,7 +185,7 @@ class DatabaseHelper {
         columnContent: element[columnContent],
         columnDone: element[columnDone],
         columnDate: element[columnDate],
-        //columnFullDay: element[columnFullDay],
+        columnFullDay: element[columnFullDay],
         columnList: element[columnList],
         //columnPriority: element[columnPriority]
       });
@@ -193,7 +197,7 @@ class DatabaseHelper {
         columnContent: element[columnContent],
         columnDone: element[columnDone],
         columnDate: element[columnDate],
-        //columnFullDay: element[columnFullDay],
+        columnFullDay: element[columnFullDay],
         columnList: element[columnList],
         //columnPriority: element[columnPriority]
       });

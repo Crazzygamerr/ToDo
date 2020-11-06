@@ -205,6 +205,7 @@ class _LoadingState extends State<Loading> {
                                                     DatabaseHelper.columnTitle: 'Hey there!',
                                                     DatabaseHelper.columnContent  : "",
                                                     DatabaseHelper.columnDate: null,
+                                                    DatabaseHelper.columnFullDay: null,
                                                     DatabaseHelper.columnList: "Default"
                                                   }
                                                 ],)
