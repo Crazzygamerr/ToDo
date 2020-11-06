@@ -170,38 +170,56 @@ class _LoadingState extends State<Loading> {
                               ),
                             ),
                           ),
-                          Card(
-                            child: FlatButton(
-                              //color: Color(0xffF8EA6D),
-                              child: Container(
-                                child: Text("Continue as Guest"),
-                                width: ScreenUtil().setWidth(410),
-                                height: ScreenUtil().setHeight(50),
-                                alignment: Alignment.center,
-                              ),
-                              //color: Colors.white,
-                              onPressed: () {
-                                _insert();
-                                SharedPref.setUser("guest", true).then((value) {
-                                  Navigator.pushAndRemoveUntil(
-                                          context,
-                                          new MaterialPageRoute(
-                                                  builder: (context) => HomeScreen(notes: [
-                                                    {
-                                                      DatabaseHelper.columnId: 1,
-                                                      DatabaseHelper.columnDone: 0,
-                                                      DatabaseHelper.columnTitle: 'Hey there!',
-                                                      DatabaseHelper.columnContent  : "",
-                                                      DatabaseHelper.columnDate: null,
-                                                      DatabaseHelper.columnList: "Default"
-                                                    }
-                                                  ],)
-                                          ), (route) => false
-                                  );
-                                });
-                              },
-                            ),
+                          Container(
+                            width: ScreenUtil().setWidth(400),
+                            height: ScreenUtil().setHeight(1),
+                            color: Colors.black.withOpacity(0.1),
                           ),
+                          RaisedButton(
+                            //color: Color(0xffF8EA6D),
+                            color: Colors.white,
+                            elevation: 0,
+                            /*shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: Colors.black
+                              )
+                            ),*/
+                            child: Container(
+                              child: Text("Continue as Guest"),
+                              width: ScreenUtil().setWidth(410),
+                              height: ScreenUtil().setHeight(50),
+                              alignment: Alignment.center,
+                            ),
+                            //color: Colors.white,
+                            onPressed: () {
+                              _insert();
+                              SharedPref.setUser("guest", true).then((value) {
+                                Navigator.pushAndRemoveUntil(
+                                        context,
+                                        new MaterialPageRoute(
+                                                builder: (context) => HomeScreen(notes: [
+                                                  {
+                                                    DatabaseHelper.columnId: 1,
+                                                    DatabaseHelper.columnDone: 0,
+                                                    DatabaseHelper.columnTitle: 'Hey there!',
+                                                    DatabaseHelper.columnContent  : "",
+                                                    DatabaseHelper.columnDate: null,
+                                                    DatabaseHelper.columnList: "Default"
+                                                  }
+                                                ],)
+                                        ), (route) => false
+                                );
+                              });
+                            },
+                          ),
+
+                          Container(
+                            width: ScreenUtil().setWidth(400),
+                            height: ScreenUtil().setHeight(1),
+                            color: Colors.black.withOpacity(0.1),
+                          ),
+
                         ],
                       ),
                     ),

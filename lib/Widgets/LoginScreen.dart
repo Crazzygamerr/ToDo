@@ -91,11 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           value: loginBox,
                           checkColor: Colors.green,
                           activeColor: Colors.white,
-                          onChanged: (value){
-                            setState(() {
-                              loading=!loading;
-                            });
-                          },
+                          onChanged: (value){},
                         ),
                         width: 15,
                         height: 15,
@@ -243,7 +239,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                     },
                     onEditingComplete: () {
-                      loginFunc();
+                      if (!loading) {
+                        loginFunc();
+                      }
                     },
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
@@ -305,7 +303,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.black),
               ),
               onPressed: () {
-                loginFunc();
+                if (!loading) {
+                  loginFunc();
+                }
               },
             ),
           ),
@@ -348,7 +348,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     FocusScope.of(context).unfocus();
     List<Map<String, dynamic>> notes = [];
-
     auth.signInWithEmailAndPassword(
           email: emailCon.text.toString(),
           password: passCon.text.toString())
@@ -396,13 +395,13 @@ class _LoginScreenState extends State<LoginScreen> {
           });
         });
       });
-      auth.signOut();
   }).catchError((onError) {
     setState(() {
       loading  = false;
       s = onError.message;
     });
   });
+    loading = false;
   }
 
   Future _insert(List<Map<String, dynamic>> row) async {
@@ -426,12 +425,11 @@ class _LoginScreenState extends State<LoginScreen> {
     fireNotes.addAll(temp2);
     List<Map<String, dynamic>> doneList = [];
     for(int i=0;i<fireNotes.length;i++){
-      if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
+      if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1) {
         doneList.add(fireNotes[i]);
-    }
-    for(int i=0;i<fireNotes.length;i++){
-      if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
         fireNotes.removeAt(i);
+        i--;
+      }
     }
     fireNotes.addAll(doneList);
     return fireNotes;

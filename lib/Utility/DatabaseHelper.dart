@@ -69,7 +69,7 @@ class DatabaseHelper {
         $columnTitle STRING,
         $columnContent STRING,
         $columnDate STRING,
-        $columnList STRING,
+        $columnList STRING
       )
     ''');
   }

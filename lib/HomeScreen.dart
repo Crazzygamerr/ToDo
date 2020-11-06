@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Map<String, dynamic>> notes = [];
   int listIndex = 0;
+  //List<List<int>> noteCount = [];
 
   CollectionReference collectionReference;
 
@@ -51,23 +52,26 @@ class _HomeScreenState extends State<HomeScreen> {
         //load = true;
       });
     });
-    _connectivitySubscription =  Connectivity().onConnectivityChanged.listen(getInternet);
     super.initState();
   }
 
   @override
   void dispose() {
-    _connectivitySubscription.cancel();
+    if(email != "guest")
+      _connectivitySubscription.cancel();
     super.dispose();
   }
 
   Future getList() async {
     email = await SharedPref.getEmail();
-    collectionReference = FirebaseFirestore.instance
-        .collection("Users")
-        .doc(email)
-        .collection("todo");
-    return collectionReference.orderBy("id").snapshots();
+    if (email != "guest") {
+      collectionReference = FirebaseFirestore.instance
+          .collection("Users")
+          .doc(email)
+          .collection("todo");
+      _connectivitySubscription =  Connectivity().onConnectivityChanged.listen(getInternet);
+      return collectionReference.orderBy("id").snapshots();
+    }
   }
 
   /*static getInternetStatic(ConnectivityResult result) async {
@@ -112,7 +116,8 @@ class _HomeScreenState extends State<HomeScreen> {
               conn = true;
             });
           }
-          checkSync();
+          if(email != "guest")
+            checkSync();
         }
     } on SocketException catch (_) {
         if (mounted) {
@@ -138,8 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     });
-    if(mounted && conn)
+    if(mounted && conn) {
+      print("checked");
       checkSync();
+    }
   }
 
   @override
@@ -154,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.black12,
           title: Text(
             DatabaseHelper.listOfLists[listIndex],
             overflow: TextOverflow.ellipsis,
@@ -170,11 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         drawer: Drawer(
           child: Container(
+            color: Colors.white,
             padding: EdgeInsets.fromLTRB(
-                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setWidth(0),
                     ScreenUtil().setHeight(25),
-                    ScreenUtil().setWidth(10),
-                    ScreenUtil().setHeight(10)
+                    ScreenUtil().setWidth(0),
+                    ScreenUtil().setHeight(0)
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -210,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ScreenUtil().setWidth(10),
                           ScreenUtil().setHeight(10),
                           ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10)
+                          ScreenUtil().setHeight(5)
                   ),
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -222,9 +230,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                RaisedButton(
-                  child: Text("Add List"),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     addList().then((value) {
                       setState(() {
                       });
@@ -234,19 +241,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     /*notes.forEach((element) {
                       print(element.toString() + "\n");
                     });*/
-                    checkSync();
+                    //checkSync();
                     //dbHelper.querySortedTable();
                   },
+                  child: Container(
+                    //color: Colors.yellow,
+                    height: ScreenUtil().setHeight(35),
+                    //width: ScreenUtil().setWidth(410),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: ScreenUtil().setWidth(10),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, ScreenUtil().setWidth(12), 0),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.blue,
+                            size: ScreenUtil().setHeight(25),
+                          ),
+                        ),
+                        Text(
+                          "Add list",
+                          style: TextStyle(
+                            fontSize: ScreenUtil().setSp(20),
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
                 Container(
                   padding: EdgeInsets.fromLTRB(
                           ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10),
+                          ScreenUtil().setHeight(5),
                           ScreenUtil().setWidth(10),
                           ScreenUtil().setHeight(10)
                   ),
-                  height: ScreenUtil().setHeight(400),
+                  height: ScreenUtil().setHeight(430),
                   child: ListView.builder(
                     itemCount: DatabaseHelper.listOfLists.length,
                     padding: EdgeInsets.all(0),
@@ -259,70 +294,94 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.pop(context);
                         },
                         child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
                           child: Container(
+                            height: ScreenUtil().setHeight(50),
                             padding: EdgeInsets.fromLTRB(
                                     ScreenUtil().setWidth(10),
                                     ScreenUtil().setHeight(10),
-                                    ScreenUtil().setWidth(10),
+                                    ScreenUtil().setWidth(20),
                                     ScreenUtil().setHeight(10)
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                            decoration: BoxDecoration(
+                              color: (listIndex == pos)?Colors.grey:Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                            child: Container(
+                              //color: Colors.green,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
 
-                                Container(
-                                  width: ScreenUtil().setWidth(180),
-                                  child: Text(
-                                    DatabaseHelper.listOfLists[pos].toString(),
-                                    style: TextStyle(
-                                      fontSize: ScreenUtil().setSp(15),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-
-                                (pos != 0)?IconButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: Container(
-                                          //width: ScreenUtil().setWidth(400),
-                                          child: Text(
-                                            "Are you sure you want to delete \"${DatabaseHelper.listOfLists[pos]}\"?",
-                                            maxLines: 3,
-                                            style: TextStyle(
-                                              fontSize: ScreenUtil().setSp(17)
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        actions: [
-                                          FlatButton(
-                                            child: Text("No"),
-                                            onPressed: (){
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                          FlatButton(
-                                            child: Text("Yes"),
-                                            onPressed: (){
-                                              Navigator.pop(context);
-                                              drop(pos).then((value) {
-                                                listIndex = 0;
-                                                getMap();
-                                              });
-                                            },
-                                          ),
-                                        ],
+                                  Container(
+                                    width: ScreenUtil().setWidth(180),
+                                    //color: Colors.blue,
+                                    child: Text(
+                                      DatabaseHelper.listOfLists[pos].toString(),
+                                      style: TextStyle(
+                                        fontSize: ScreenUtil().setSp(15),
+                                        color: (listIndex != pos)?Colors.black:Colors.white
                                       ),
-                                      barrierDismissible: false,
-                                    );
-                                  },
-                                  icon: Icon(Icons.delete),
-                                ):Container(),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
 
-                              ],
+                                  (pos != 0)?GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: Container(
+                                            //width: ScreenUtil().setWidth(400),
+                                            child: Text(
+                                              "Are you sure you want to delete \"${DatabaseHelper.listOfLists[pos]}\"?",
+                                              maxLines: 3,
+                                              style: TextStyle(
+                                                      fontSize: ScreenUtil().setSp(17)
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          actions: [
+                                            FlatButton(
+                                              child: Text("No"),
+                                              onPressed: (){
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            FlatButton(
+                                              child: Text("Yes"),
+                                              onPressed: (){
+                                                Navigator.pop(context);
+                                                drop(pos).then((value) {
+                                                  listIndex = 0;
+                                                  getMap();
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        barrierDismissible: false,
+                                      );
+                                    },
+                                    child: Container(
+                                      //color: Colors.blue,
+                                      child: Icon(
+                                        Icons.delete,
+                                      ),
+                                    ),
+                                  ):Container(),
+
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -332,17 +391,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
+                SizedBox(
+                  height: ScreenUtil().setHeight(150),
+                ),
+
+                Container(
+                  color: Colors.black.withOpacity(0.1),
+                  height: ScreenUtil().setHeight(1),
+                ),
+
                 RaisedButton(
-                  child: Text("Log out"),
+                  elevation: 0,
+                  color: Colors.white,
                   onPressed: () {
                     DatabaseHelper.listOfLists = [
                       "Default"
                     ];
                     dbHelper.drop();
-                    auth.signOut();
+                    if(email != "guest")
+                      auth.signOut();
                     SharedPref.setUserLogin(false);
                     Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
                   },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: ScreenUtil().setWidth(250),
+                    height: ScreenUtil().setHeight(40),
+                    child: Text(
+                      "Log out",
+                    ),
+                  ),
                 ),
 
               ],
@@ -355,11 +433,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
             List<Map<String, dynamic>> fireNotes = [];
             if(conn && snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
-              var ss = snapshot.data;
-              bool hasDate = false;
-              for(int i=0;(ss != null && i<ss.docs.length);i++){
-                Map<String, dynamic> temp = ss.docs[i].data();
-                temp['ref'] = ss.docs[i].reference;
+              bool hasDate;
+              for(int i=0;i<snapshot.data.docs.length;i++){
+                Map<String, dynamic> temp = snapshot.data.docs[i].data();
+                temp['ref'] = snapshot.data.docs[i].reference;
                 fireNotes.add(temp);
                 if(temp['date'] != null)
                   hasDate = true;
@@ -380,12 +457,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 fireNotes.addAll(temp2);
                 List<Map<String, dynamic>> doneList = [];
                 for(int i=0;i<fireNotes.length;i++){
-                  if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
+                  if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1) {
                     doneList.add(fireNotes[i]);
-                }
-                for(int i=0;i<fireNotes.length;i++){
-                  if(fireNotes[i]['done'] != null && fireNotes[i]['done'] == 1)
                     fireNotes.removeAt(i);
+                    i--;
+                  }
                 }
                 fireNotes.addAll(doneList);
               }
@@ -407,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
 
-            } else if (!snapshot.hasData ||
+            } else if (conn && !snapshot.hasData ||
                 snapshot.hasError ||
                 snapshot.connectionState == ConnectionState.waiting
                 ) {
@@ -604,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Card(
                                   child: Container(
                                     padding: EdgeInsets.fromLTRB(
-                                        ScreenUtil().setWidth(10),
+                                        ScreenUtil().setWidth(0),
                                         ScreenUtil().setHeight(10),
                                         ScreenUtil().setWidth(20),
                                         ScreenUtil().setHeight(10)),
@@ -615,27 +691,73 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Row(
                                             children: [
 
-                                              Checkbox(
-                                                value: (notes[pos]['done'] == null)
+                                              GestureDetector(
+                                                onTap: (){
+                                                  bool b = (notes[pos]['done'] == null)
                                                           ?false
                                                           :(notes[pos]['done'] == 1)
-                                                              ?true
-                                                              :false,
-                                                onChanged: (b) {
+                                                          ?true
+                                                          :false;
+                                                  b = !b;
                                                   if (conn) {
-                                                    fireNotes[pos]['done'] = (b != null)?((b)?1:0):0;
+                                                    fireNotes[pos]['done'] = (b)?1:0;
                                                     fireNotes[pos]['ref'].update({
-                                                      "done": (b != null)?((b)?1:0):0
+                                                      "done": (b)?1:0
                                                     });
                                                   }
                                                   var temp = notes;
-                                                  temp[pos]['done'] = (b != null)?((b)?1:0):0;
+                                                  temp[pos]['done'] =(b)?1:0;
                                                   dbHelper.update(temp[pos]).then((value) {
                                                     getMap();
                                                   });
                                                 },
-                                                activeColor: Colors.white,
-                                                checkColor: Colors.green,
+                                                child: Container(
+                                                  //color: Colors.blue,
+                                                  padding: EdgeInsets.fromLTRB(
+                                                          ScreenUtil().setWidth(20),
+                                                          ScreenUtil().setHeight(10),
+                                                          ScreenUtil().setWidth(17.5),
+                                                          ScreenUtil().setHeight(10)
+                                                  ),
+                                                  child: Theme(
+                                                    data: ThemeData(unselectedWidgetColor: Colors.white),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                              border: Border.all(
+                                                                      color: Colors.black,
+                                                                      width: 3
+                                                              )
+                                                      ),
+                                                      child: Container(
+                                                        width: ScreenUtil().setHeight(15),
+                                                        height: ScreenUtil().setHeight(15),
+                                                        child: Checkbox(
+                                                          value: (notes[pos]['done'] == null)
+                                                                  ?false
+                                                                  :(notes[pos]['done'] == 1)
+                                                                  ?true
+                                                                  :false,
+                                                          checkColor: Colors.green,
+                                                          activeColor: Colors.white,
+                                                          onChanged: (b){
+                                                            if (conn) {
+                                                              fireNotes[pos]['done'] = (b)?1:0;
+                                                              fireNotes[pos]['ref'].update({
+                                                                "done": (b)?1:0
+                                                              });
+                                                            }
+                                                            var temp = notes;
+                                                            temp[pos]['done'] =(b)?1:0;
+                                                            dbHelper.update(temp[pos]).then((value) {
+                                                              getMap();
+                                                            });
+                                                          },
+                                                        ),
+
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
 
                                               Column(
@@ -711,7 +833,21 @@ class _HomeScreenState extends State<HomeScreen> {
       if(firstNote[6]) {
         firstNote[6] = false;
         return Container(
-          child: Text("Done"),
+          alignment: Alignment.center,
+          width: ScreenUtil().setWidth(410),
+          height: ScreenUtil().setHeight(30),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(10)
+          ),
+          child: Text(
+            "Done",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: ScreenUtil().setSp(17)
+            ),
+          ),
         );
       } else {
         return Container();
@@ -720,7 +856,19 @@ class _HomeScreenState extends State<HomeScreen> {
       if(firstNote[5]) {
         firstNote[5] = false;
         return Container(
-          child: Text("No due date"),
+          alignment: Alignment.center,
+          width: ScreenUtil().setWidth(410),
+          height: ScreenUtil().setHeight(30),
+          decoration: BoxDecoration(
+            //borderRadius: BorderRadius.circular(15),
+            //color: Colors.yellow
+          ),
+          child: Text(
+            "No due date",
+            style: TextStyle(
+              fontSize: ScreenUtil().setSp(17),
+            ),
+          ),
         );
       } else {
         return Container();
@@ -732,7 +880,19 @@ class _HomeScreenState extends State<HomeScreen> {
         if(firstNote[0]) {
           firstNote[0] = false;
           return Container(
-            child: Text("Overdue"),
+            alignment: Alignment.center,
+            width: ScreenUtil().setWidth(410),
+            height: ScreenUtil().setHeight(30),
+            decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10)
+            ),
+            child: Text("Overdue",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: ScreenUtil().setSp(17)
+              ),
+            ),
           );
         } else {
           return Container();
@@ -741,7 +901,18 @@ class _HomeScreenState extends State<HomeScreen> {
         if(firstNote[1]) {
           firstNote[1] = false;
           return Container(
-            child: Text("This week"),
+            alignment: Alignment.center,
+            width: ScreenUtil().setWidth(410),
+            height: ScreenUtil().setHeight(30),
+            decoration: BoxDecoration(
+                    //color: Colors.blueAccent.withOpacity(0.8),
+                    //borderRadius: BorderRadius.circular(15)
+            ),
+            child: Text("This week",
+              style: TextStyle(
+                fontSize: ScreenUtil().setSp(17),
+              ),
+            ),
           );
         } else {
           return Container();
@@ -750,7 +921,18 @@ class _HomeScreenState extends State<HomeScreen> {
         if(firstNote[2]) {
           firstNote[2] = false;
           return Container(
-            child: Text("Next week"),
+            alignment: Alignment.center,
+            width: ScreenUtil().setWidth(410),
+            height: ScreenUtil().setHeight(30),
+            decoration: BoxDecoration(
+                    //color: Colors.blueAccent.withOpacity(0.8),
+                    //borderRadius: BorderRadius.circular(15)
+            ),
+            child: Text("Next week",
+              style: TextStyle(
+                fontSize: ScreenUtil().setSp(17),
+              ),
+            ),
           );
         } else {
           return Container();
@@ -759,7 +941,18 @@ class _HomeScreenState extends State<HomeScreen> {
         if(firstNote[3]) {
           firstNote[3] = false;
           return Container(
-            child: Text("This month"),
+            alignment: Alignment.center,
+            width: ScreenUtil().setWidth(410),
+            height: ScreenUtil().setHeight(30),
+            decoration: BoxDecoration(
+                    //color: Colors.yellow.withOpacity(0.85),
+                    //borderRadius: BorderRadius.circular(15)
+            ),
+            child: Text("This month",
+              style: TextStyle(
+                fontSize: ScreenUtil().setSp(17),
+              ),
+            ),
           );
         } else {
           return Container();
@@ -768,7 +961,18 @@ class _HomeScreenState extends State<HomeScreen> {
         if(firstNote[4]) {
           firstNote[4] = false;
           return Container(
-            child: Text("Later"),
+            alignment: Alignment.center,
+            width: ScreenUtil().setWidth(410),
+            height: ScreenUtil().setHeight(30),
+            decoration: BoxDecoration(
+                    //color: Colors.yellowAccent.withOpacity(0.5),
+                    //borderRadius: BorderRadius.circular(15)
+            ),
+            child: Text("Later",
+              style: TextStyle(
+                fontSize: ScreenUtil().setSp(17),
+              ),
+            ),
           );
         } else {
           return Container();
@@ -822,7 +1026,7 @@ class _HomeScreenState extends State<HomeScreen> {
           List<Map<String, dynamic>> cloudNotes = [];
           for(int i=0;i<snapshot.docs.length;i++){
             Map<String, dynamic> temp = snapshot.docs[i].data();
-            String date = "";
+            String date;
             if(temp['date'] != null){
               DateTime d = DateTime.fromMillisecondsSinceEpoch(temp['date'].seconds * 1000);
               date = d.toIso8601String();
@@ -845,7 +1049,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (cloudNotes.length == 0) {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp = new Timestamp(0, 0);
+              Timestamp timestamp;
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               collectionReference.add({
@@ -853,13 +1057,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 "done": sqlNotes[i]['done'],
                 "title": sqlNotes[i]['title'],
                 "content": sqlNotes[i]['content'],
-                "date": (sqlNotes[i]['date'] != null || sqlNotes[i]['date'] != "")?timestamp:"",
+                "date": timestamp,
                 "list": sqlNotes[i]['list']
               });
             }
           } else {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp = new Timestamp(0, 0);
+              Timestamp timestamp;
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               bool update = false;
@@ -876,7 +1080,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   "done": sqlNotes[i]['done'],
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
-                  "date": (sqlNotes[i]['date'] != null && sqlNotes[i]['date'] != "")?timestamp:"",
+                  "date": timestamp,
                   "list": sqlNotes[i]['list']
                 });
               } else {
@@ -885,7 +1089,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   "done": sqlNotes[i]['done'],
                   "title": sqlNotes[i]['title'],
                   "content": sqlNotes[i]['content'],
-                  "date": (sqlNotes[i]['date'] != null && sqlNotes[i]['date'] != "")?timestamp:"",
+                  "date": timestamp,
                   "list": sqlNotes[i]['list']
                 });
               }
