@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +15,7 @@ class NoteScreen extends StatefulWidget {
   final bool create;
   final bool conn;
 
-  NoteScreen({Key key, this.ref, this.note, this.id, this.listIndex, this.create, this.conn}) : super(key: key);
+  NoteScreen({this.ref, this.note, this.id = 0, this.listIndex = 0, this.create = false, this.conn = false});
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
@@ -93,7 +92,7 @@ class _NoteScreenState extends State<NoteScreen> {
   Widget build(BuildContext context) {
 
     ScreenUtil.init(context,
-            width: 411.4, height: 866.3, allowFontScaling: true);
+            designSize: Size(411.4, 866.3), allowFontScaling: true);
 
     return WillPopScope(
       onWillPop: () async {
@@ -115,6 +114,7 @@ class _NoteScreenState extends State<NoteScreen> {
         ),
         body: SingleChildScrollView(
           child: Container(
+            height: ScreenUtil().setHeight(780),
             padding: EdgeInsets.fromLTRB(
                     ScreenUtil().setWidth(10),
                     ScreenUtil().setHeight(10),
@@ -135,7 +135,7 @@ class _NoteScreenState extends State<NoteScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: "Title",
-                    border: InputBorder.none,
+                    //border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: Colors.grey,
                     ),
@@ -145,100 +145,191 @@ class _NoteScreenState extends State<NoteScreen> {
                   },
                 ),
 
-                Row(
-                  children: [
-                    Text(
-                        (pickedDate != null)?DateFormat.yMd().format(
-                        DateTime.parse(
-                          pickedDate
-                        )
-                      ).toString():
-                      "Add due date"
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.calendar_today),
-                      onPressed: () {
-                        _selectDate();
-                      },
-                    ),
-                    (pickedDate != null)?IconButton(
-                      icon: Icon(Icons.highlight_remove_outlined),
-                      onPressed: () {
-                        setState(() {
-                          pickedDate = null;
-                        });
-                      },
-                    ):Container(),
-                  ],
+                SizedBox(
+                  height: ScreenUtil().setHeight(20),
                 ),
 
-                (pickedDate != null)?Row(
-                  children: [
-                    Text(
-                      (time != null)?time.format(context):
-                        "No time set"
+                Card(
+                  child: Container(
+                    height: ScreenUtil().setHeight(60),
+                    padding: EdgeInsets.fromLTRB(
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10),
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10)
                     ),
-                    IconButton(
-                      icon: Icon(Icons.access_time_rounded),
-                      onPressed: () {
-                        _selectTime();
-                      },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          //color: Colors.blue,
+                          child: Text(
+                              (pickedDate != null)?DateFormat.yMd().format(
+                              DateTime.parse(
+                                pickedDate
+                              )
+                            ).toString():
+                            "Add due date",
+                            style: TextStyle(
+                              fontSize: ScreenUtil().setSp(18),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: ScreenUtil().setWidth(50),
+                        ),
+                        Container(
+                          child: Row(
+                            children: [
+                              Container(
+                                //color: Colors.green,
+                                child: IconButton(
+                                  icon: Icon(Icons.calendar_today),
+                                  onPressed: () {
+                                    _selectDate();
+                                  },
+                                ),
+                              ),
+                              (pickedDate != null)?IconButton(
+                                icon: Icon(Icons.highlight_remove_outlined),
+                                onPressed: () {
+                                  setState(() {
+                                    pickedDate = null;
+                                  });
+                                },
+                              ):Container(),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    (time != null)?IconButton(
-                      icon: Icon(Icons.highlight_remove_outlined),
-                      onPressed: () {
-                        setState(() {
-                          time = null;
-                          var temp = DateTime.parse(pickedDate);
-                          pickedDate = DateTime(temp.year, temp.month, temp.day, 0, 0).toIso8601String();
-                        });
-                      },
-                    ):Container(),
-                  ],
-                ):Container(),
-
-                DropdownButton<int>(
-                  value: listIndex,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  onChanged: (int newValue) {
-                    if(newValue != listIndex){
-                      listIndex = newValue;
-                    }
-                  },
-                  items: List.generate(
-                          DatabaseHelper.listOfLists.length,
-                                  (index){
-                            return DropdownMenuItem(
-                              value: index,
-                              child: Text("${DatabaseHelper.listOfLists[index]}"),
-                            );
-                          }
                   ),
                 ),
 
-                GestureDetector(
-                  onTap: () {
-                    contentNode.requestFocus();
-                  },
+                (pickedDate != null)?Card(
                   child: Container(
-                    height: ScreenUtil().setHeight(350),
-                    child: TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      //minLines: 30,
-                      controller: contentCon,
-                      focusNode: contentNode,
-                      style: TextStyle(
-                              fontSize: ScreenUtil().setSp(22)
-                      ),
-                      textInputAction: TextInputAction.newline,
-                      decoration: InputDecoration(
-                        labelText: "Description",
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
+                    height: ScreenUtil().setHeight(60),
+                    padding: EdgeInsets.fromLTRB(
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10),
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10)
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          (time != null)?time.format(context):
+                            "No time set",
+                          style: TextStyle(
+                            fontSize: ScreenUtil().setSp(18),
+                            //color: Color(0xffB399D4)
+                          ),
+                        ),
+                        SizedBox(
+                          width: ScreenUtil().setWidth(50),
+                        ),
+                        Container(
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.access_time_rounded),
+                                onPressed: () {
+                                  _selectTime();
+                                },
+                              ),
+                              (time != null)?IconButton(
+                                icon: Icon(Icons.highlight_remove_outlined),
+                                onPressed: () {
+                                  setState(() {
+                                    time = null;
+                                    var temp = DateTime.parse(pickedDate);
+                                    pickedDate = DateTime(temp.year, temp.month, temp.day, 0, 0).toIso8601String();
+                                  });
+                                },
+                              ):Container(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ):Container(),
+
+                Card(
+                  child: Container(
+                    height: ScreenUtil().setHeight(60),
+                    padding: EdgeInsets.fromLTRB(
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10),
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10)
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Select list",
+                          style: TextStyle(
+                                  fontSize: ScreenUtil().setSp(18)
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(
+                                  ScreenUtil().setWidth(0),
+                                  ScreenUtil().setHeight(0),
+                                  ScreenUtil().setWidth(10),
+                                  ScreenUtil().setHeight(0)
+                          ),
+                          child: DropdownButton<int>(
+                            value: listIndex,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 16,
+                            onChanged: (int newValue) {
+                              if(newValue != listIndex){
+                                listIndex = newValue;
+                              }
+                            },
+                            items: List.generate(
+                                    DatabaseHelper.listOfLists.length,
+                                            (index){
+                                      return DropdownMenuItem(
+                                        value: index,
+                                        child: Text("${DatabaseHelper.listOfLists[index]}"),
+                                      );
+                                    }
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      contentNode.requestFocus();
+                    },
+                    child: Container(
+                      height: ScreenUtil().setHeight(350),
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        //minLines: 30,
+                        controller: contentCon,
+                        focusNode: contentNode,
+                        style: TextStyle(
+                                fontSize: ScreenUtil().setSp(22)
+                        ),
+                        textInputAction: TextInputAction.newline,
+                        decoration: InputDecoration(
+                          labelText: "Description",
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),

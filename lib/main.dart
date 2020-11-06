@@ -5,6 +5,7 @@ import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
 import 'package:ToDo/Widgets/LoginScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -67,19 +68,24 @@ class _LoadingState extends State<Loading> {
   Widget build(BuildContext context) {
 
     ScreenUtil.init(context,
-        width: 411.4, height: 866.3, allowFontScaling: true);
+        designSize: Size(411.4, 866.3), allowFontScaling: true);
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
 
+    var bottom = MediaQuery.of(context).viewInsets.bottom;
+
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          SizedBox(
+            height: ScreenUtil().setHeight(40),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -109,72 +115,114 @@ class _LoadingState extends State<Loading> {
             style: TextStyle(fontSize: 25),
           ),
           SizedBox(
-            height: ScreenUtil().setHeight(125),
+            height: 30,
           ),
+
           StatefulBuilder(
             builder: (context, setLoad) {
 
               if(!load) {
                   return Center(
-                    child: Container(
-                      width: ScreenUtil().setWidth(20),
-                      height: ScreenUtil().setWidth(20),
-                      child: CircularProgressIndicator(),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: ScreenUtil().setHeight(125),
+                        ),
+                        Container(
+                          width: ScreenUtil().setWidth(20),
+                          height: ScreenUtil().setWidth(20),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ],
                     ),
                   );
               } else {
-                return Container(
-                  child: Column(
-                    children: [
-                      Provider(
-                        pageCon: pageCon,
-                        child: Container(
-                          //color: Colors.blue,
-                          width: ScreenUtil().setWidth(410),
-                          height: ScreenUtil().setHeight(400),
-                          child: PageView(
-                            controller: pageCon,
-                            physics: NeverScrollableScrollPhysics(),
-                            children: [
-                              LoginScreen(),
-                              CreateAcc(),
-                            ],
+                return Expanded(
+                  child: Container(
+                    //color: Colors.green,
+                    width: ScreenUtil().setWidth(410),
+                    //height: ScreenUtil().setHeight(500),
+                    padding: EdgeInsets.only(bottom: bottom),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+
+                          SizedBox(
+                            height: ScreenUtil().setHeight(
+                              (bottom == 0)?100:0,
+                            ),
                           ),
-                        ),
-                      ),
-                      Card(
-                        child: FlatButton(
-                          //color: Color(0xffF8EA6D),
-                          child: Container(
-                            child: Text("Continue as Guest"),
-                            width: ScreenUtil().setWidth(410),
-                            height: ScreenUtil().setHeight(50),
-                            alignment: Alignment.center,
+
+                          Provider(
+                            pageCon: pageCon,
+                            child: Container(
+                              //color: Colors.blue,
+                              width: ScreenUtil().setWidth(410),
+                              height: ScreenUtil().setHeight(340),
+                              child: PageView(
+                                controller: pageCon,
+                                physics: NeverScrollableScrollPhysics(),
+                                children: [
+                                  LoginScreen(),
+                                  CreateAcc(),
+                                ],
+                              ),
+                            ),
                           ),
-                          //color: Colors.white,
-                          onPressed: () {
-                            _insert();
-                            SharedPref.setUser("guest", true).then((value) {
-                              Navigator.pushAndRemoveUntil(
-                                      context,
-                                      new MaterialPageRoute(
-                                              builder: (context) => HomeScreen(notes: [
-                                                {
-                                                  DatabaseHelper.columnId: 1,
-                                                  DatabaseHelper.columnDone: 0,
-                                                  DatabaseHelper.columnTitle: 'Hey there!',
-                                                  DatabaseHelper.columnContent  : "",
-                                                  DatabaseHelper.columnDate: null,
-                                                  DatabaseHelper.columnList: "Default"
-                                                }
-                                              ],)
-                                      ), (route) => false
-                              );
-                            });
-                          },
-                        ),
+                          Container(
+                            width: ScreenUtil().setWidth(400),
+                            height: ScreenUtil().setHeight(1),
+                            color: Colors.black.withOpacity(0.1),
+                          ),
+                          RaisedButton(
+                            //color: Color(0xffF8EA6D),
+                            color: Colors.white,
+                            elevation: 0,
+                            /*shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: Colors.black
+                              )
+                            ),*/
+                            child: Container(
+                              child: Text("Continue as Guest"),
+                              width: ScreenUtil().setWidth(410),
+                              height: ScreenUtil().setHeight(50),
+                              alignment: Alignment.center,
+                            ),
+                            //color: Colors.white,
+                            onPressed: () {
+                              _insert();
+                              SharedPref.setUser("guest", true).then((value) {
+                                Navigator.pushAndRemoveUntil(
+                                        context,
+                                        new MaterialPageRoute(
+                                                builder: (context) => HomeScreen(notes: [
+                                                  {
+                                                    DatabaseHelper.columnId: 1,
+                                                    DatabaseHelper.columnDone: 0,
+                                                    DatabaseHelper.columnTitle: 'Hey there!',
+                                                    DatabaseHelper.columnContent  : "",
+                                                    DatabaseHelper.columnDate: null,
+                                                    DatabaseHelper.columnList: "Default"
+                                                  }
+                                                ],)
+                                        ), (route) => false
+                                );
+                              });
+                            },
+                          ),
+
+                          Container(
+                            width: ScreenUtil().setWidth(400),
+                            height: ScreenUtil().setHeight(1),
+                            color: Colors.black.withOpacity(0.1),
+                          ),
+
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 );
               }
