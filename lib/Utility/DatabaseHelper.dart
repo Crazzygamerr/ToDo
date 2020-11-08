@@ -26,7 +26,7 @@ class DatabaseHelper {
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
-  static late Database _database;
+  static Database _database;
 
   Future<Database> get database async {
     

@@ -331,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    Provider.of(context)!.pageCon!.jumpToPage(1);
+                    Provider.of(context).pageCon.jumpToPage(1);
                   },
                 ),
               ],
@@ -367,7 +367,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 .orderBy("id")
                 .get().then((value) {
           value.docs.forEach((element) {
-            String? date;
+            String date;
             if(element.data()['date'] != null){
               DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
               date = d.toIso8601String();
