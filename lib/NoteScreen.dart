@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 
 class NoteScreen extends StatefulWidget {
   
-  final DocumentReference ref;
-  final Map<String, dynamic> note;
+  final DocumentReference? ref;
+  final Map<String, dynamic?>? note;
   final int id;
   final int listIndex;
   final bool create;
@@ -31,18 +31,18 @@ class _NoteScreenState extends State<NoteScreen> {
   
   final dbHelper = DatabaseHelper.instance;
 
-  String pickedDate;
-  TimeOfDay time;
+  late String? pickedDate;
+  late TimeOfDay? time;
 
-  DocumentSnapshot snapshot;
-  Map<String, dynamic> note;
-  int id, listIndex;
-  bool create;
+  late DocumentSnapshot? snapshot;
+  late Map<String, dynamic?> note;
+  late int id, listIndex;
+  late bool create;
   
   @override
   void initState() {
     print("NOTESCREEN....notes............" + widget.note.toString());
-    note = widget.note;
+    note = widget.note!;
     id = widget.id;
     create = widget.create;
     listIndex = widget.listIndex;
@@ -51,8 +51,8 @@ class _NoteScreenState extends State<NoteScreen> {
       titleCon.text = note['title'].toString();
       contentCon.text = (note['content'].toString() == null)?"":note['content'].toString();
       pickedDate = note['date'];
-      if(pickedDate != null && widget.note['fullDay'] != null && widget.note['fullDay'] != 1) {
-        var temp = DateTime.parse(pickedDate);
+      if(pickedDate != null && widget.note!['fullDay'] != null && widget.note!['fullDay'] != 1) {
+        var temp = DateTime.parse(pickedDate!);
         time = new TimeOfDay(hour: temp.hour, minute: temp.minute);
       }
       
@@ -166,7 +166,7 @@ class _NoteScreenState extends State<NoteScreen> {
                           child: Text(
                               (pickedDate != null)?DateFormat.yMd().format(
                               DateTime.parse(
-                                pickedDate
+                                pickedDate!
                               )
                             ).toString():
                             "Add due date",
@@ -219,7 +219,7 @@ class _NoteScreenState extends State<NoteScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          (time != null)?time.format(context):
+                          (time != null)?time!.format(context):
                             "No time set",
                           style: TextStyle(
                             fontSize: ScreenUtil().setSp(18),
@@ -243,7 +243,7 @@ class _NoteScreenState extends State<NoteScreen> {
                                 onPressed: () {
                                   setState(() {
                                     time = null;
-                                    var temp = DateTime.parse(pickedDate);
+                                    var temp = DateTime.parse(pickedDate!);
                                     pickedDate = DateTime(temp.year, temp.month, temp.day, 0, 0).toIso8601String();
                                   });
                                 },
@@ -286,9 +286,9 @@ class _NoteScreenState extends State<NoteScreen> {
                             icon: Icon(Icons.arrow_downward),
                             iconSize: 24,
                             elevation: 16,
-                            onChanged: (int newValue) {
+                            onChanged: (int? newValue) {
                               if(newValue != listIndex){
-                                listIndex = newValue;
+                                listIndex = newValue!;
                               }
                             },
                             items: List.generate(
@@ -348,12 +348,12 @@ class _NoteScreenState extends State<NoteScreen> {
     titleNode.unfocus();
     contentNode.unfocus();
     if(snapshot != null) {
-      snapshot.reference
+      snapshot!.reference
               .update(
                 {
                   "title": titleCon.text.toString(),
                   "content": contentCon.text.toString().trim(),
-                  "date": (pickedDate != null)?Timestamp.fromDate(DateTime.parse(pickedDate)):null,
+                  "date": (pickedDate != null)?Timestamp.fromDate(DateTime.parse(pickedDate!)):null,
                   "fullDay": (time == null)?1:0,
                   "list": DatabaseHelper.listOfLists[listIndex],
                   //"priority":
@@ -378,9 +378,9 @@ class _NoteScreenState extends State<NoteScreen> {
 
   _selectDate() async {
     DateTime picked;
-    final DateTime d = await showDatePicker(
+    final DateTime? d = await showDatePicker(
       context: context,
-      initialDate: (pickedDate == null)?DateTime.now():DateTime.parse(pickedDate),
+      initialDate: (pickedDate == null)?DateTime.now():DateTime.parse(pickedDate!),
       firstDate: DateTime(DateTime.now().year - 1),
       lastDate: DateTime(DateTime.now().year + 5),
     );
@@ -388,7 +388,7 @@ class _NoteScreenState extends State<NoteScreen> {
     if(d != null){
       picked = new DateTime(d.year, d.month, d.day);
       if(snapshot != null) {
-        snapshot.reference.update({
+        snapshot!.reference.update({
           DatabaseHelper.columnDate: Timestamp.fromDate(picked)
         });
       }
@@ -399,15 +399,15 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   _selectTime() async {
-    final TimeOfDay t = await showTimePicker(
+    final TimeOfDay? t = await showTimePicker(
       context: context,
-      initialTime: (time == null)?TimeOfDay.now():time,
+      initialTime: (time == null)?TimeOfDay.now():time!,
     );
     if(t != null) {
-      DateTime temp = DateTime.parse(pickedDate);
+      DateTime temp = DateTime.parse(pickedDate!);
       DateTime picked = new DateTime(temp.year, temp.month, temp.day, t.hour, t.minute);
       if(snapshot != null) {
-        snapshot.reference.update({
+        snapshot!.reference.update({
           DatabaseHelper.columnDate: Timestamp.fromDate(picked)
         });
       }

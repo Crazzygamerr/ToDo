@@ -20,32 +20,28 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 
-  HomeScreen({this.notes});
+  HomeScreen({required this.notes});
 }
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  Stream<QuerySnapshot> list1;
-  String email;
+  late Stream<QuerySnapshot> list1;
+  late String email;
   bool conn = false, loadSQL = false;
   final dbHelper = DatabaseHelper.instance;
-  StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   FirebaseAuth auth = FirebaseAuth.instance;
 
   List<Map<String, dynamic>> notes = [];
   int listIndex = 0;
   //List<List<int>> noteCount = [];
 
-  CollectionReference collectionReference;
+  late CollectionReference collectionReference;
 
   @override
   void initState() {
-    if(widget.notes != null) {
-      notes = widget.notes;
-      loadSQL = true;
-    } else {
-      getMap();
-    }
+    notes = widget.notes;
+    loadSQL = true;
     getList().then((value) {
       setState(() {
         list1 = value;
@@ -433,10 +429,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
             List<Map<String, dynamic>> fireNotes = [];
             if(conn && snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
-              bool hasDate;
-              for(int i=0;i<snapshot.data.docs.length;i++){
-                Map<String, dynamic> temp = snapshot.data.docs[i].data();
-                temp['ref'] = snapshot.data.docs[i].reference;
+              bool hasDate = false;
+              for(int i=0;i<snapshot.data!.docs.length;i++){
+                Map<String, dynamic> temp = snapshot.data!.docs[i].data();
+                temp['ref'] = snapshot.data!.docs[i].reference;
                 fireNotes.add(temp);
                 if(temp['date'] != null)
                   hasDate = true;
@@ -741,13 +737,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           activeColor: Colors.white,
                                                           onChanged: (b){
                                                             if (conn) {
-                                                              fireNotes[pos]['done'] = (b)?1:0;
+                                                              fireNotes[pos]['done'] = (b!)?1:0;
                                                               fireNotes[pos]['ref'].update({
                                                                 "done": (b)?1:0
                                                               });
                                                             }
                                                             var temp = notes;
-                                                            temp[pos]['done'] =(b)?1:0;
+                                                            temp[pos]['done'] =(b!)?1:0;
                                                             dbHelper.update(temp[pos]).then((value) {
                                                               getMap();
                                                             });
@@ -1032,7 +1028,7 @@ class _HomeScreenState extends State<HomeScreen> {
           List<Map<String, dynamic>> cloudNotes = [];
           for(int i=0;i<snapshot.docs.length;i++){
             Map<String, dynamic> temp = snapshot.docs[i].data();
-            String date;
+            String? date;
             if(temp['date'] != null){
               DateTime d = DateTime.fromMillisecondsSinceEpoch(temp['date'].seconds * 1000);
               date = d.toIso8601String();
@@ -1055,7 +1051,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (cloudNotes.length == 0) {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp;
+              Timestamp? timestamp;
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               collectionReference.add({
@@ -1070,7 +1066,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           } else {
             for(int i=0;i<sqlNotes.length;i++){
-              Timestamp timestamp;
+              Timestamp? timestamp;
               if(sqlNotes[i]['date'] != null)
                 timestamp = Timestamp.fromDate(DateTime.parse(sqlNotes[i]['date']));
               bool update = false;

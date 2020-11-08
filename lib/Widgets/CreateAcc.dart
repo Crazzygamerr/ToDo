@@ -329,7 +329,7 @@ class _CreateAccState extends State<CreateAcc> {
                   ),
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    Provider.of(context).pageCon.jumpToPage(0);
+                    Provider.of(context)!.pageCon!.jumpToPage(0);
                   },
                 ),
               ],
