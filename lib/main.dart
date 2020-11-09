@@ -1,9 +1,9 @@
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
-import 'package:ToDo/Utility/Provider.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
 import 'package:ToDo/Widgets/LoginScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +37,8 @@ class _LoadingState extends State<Loading> {
 
   PageController pageCon = new PageController(initialPage: 0);
   bool load = false;
+
+  String s = "Sign Up";
 
   @override
   void initState() {
@@ -154,20 +156,17 @@ class _LoadingState extends State<Loading> {
                             ),
                           ),
 
-                          Provider(
-                            pageCon: pageCon,
-                            child: Container(
-                              //color: Colors.blue,
-                              width: ScreenUtil().setWidth(410),
-                              height: ScreenUtil().setHeight(340),
-                              child: PageView(
-                                controller: pageCon,
-                                physics: NeverScrollableScrollPhysics(),
-                                children: [
-                                  LoginScreen(),
-                                  CreateAcc(),
-                                ],
-                              ),
+                          Container(
+                            //color: Colors.blue,
+                            width: ScreenUtil().setWidth(410),
+                            height: ScreenUtil().setHeight(340),
+                            child: PageView(
+                              controller: pageCon,
+                              physics: NeverScrollableScrollPhysics(),
+                              children: [
+                                LoginScreen(),
+                                CreateAcc(),
+                              ],
                             ),
                           ),
                           Container(
@@ -186,6 +185,44 @@ class _LoadingState extends State<Loading> {
                               )
                             ),*/
                             child: Container(
+                              child: Text(
+                                s,
+                              ),
+                              width: ScreenUtil().setWidth(410),
+                              height: ScreenUtil().setHeight(50),
+                              alignment: Alignment.center,
+                            ),
+                            //color: Colors.white,
+                            onPressed: () {
+                              setState(() {
+                                if(pageCon.page == 0){
+                                  pageCon.jumpToPage(1);
+                                  s = "Log In";
+                                } else {
+                                  pageCon.jumpToPage(0);
+                                  s = "Sign Up";
+                                }
+                              });
+                            },
+                          ),
+
+                          Container(
+                            width: ScreenUtil().setWidth(400),
+                            height: ScreenUtil().setHeight(1),
+                            color: Colors.black.withOpacity(0.1),
+                          ),
+
+                          RaisedButton(
+                            //color: Color(0xffF8EA6D),
+                            color: Colors.white,
+                            elevation: 0,
+                            /*shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: Colors.black
+                              )
+                            ),*/
+                            child: Container(
                               child: Text("Continue as Guest"),
                               width: ScreenUtil().setWidth(410),
                               height: ScreenUtil().setHeight(50),
@@ -193,7 +230,7 @@ class _LoadingState extends State<Loading> {
                             ),
                             //color: Colors.white,
                             onPressed: () {
-                              _insert();
+                               _insert();
                               SharedPref.setUser("guest", true).then((value) {
                                 Navigator.pushAndRemoveUntil(
                                         context,

@@ -1,6 +1,5 @@
 import 'package:ToDo/Utility/DatabaseHelper.dart';
 import 'package:ToDo/HomeScreen.dart';
-import 'package:ToDo/Utility/Provider.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -307,34 +306,7 @@ class _CreateAccState extends State<CreateAcc> {
               },
             ),
           ),
-          Container(
-            padding: EdgeInsets.fromLTRB(
-                0, ScreenUtil().setHeight(10), 0, ScreenUtil().setHeight(10)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "Already have an account? ",
-                  style: TextStyle(fontSize: ScreenUtil().setSp(15)),
-                ),
-                GestureDetector(
-                  child: Text(
-                    "Log In",
-                    style: TextStyle(
-                        fontSize: ScreenUtil().setSp(15),
-                        fontWeight: FontWeight.w300,
-                        decoration: TextDecoration.underline,
-                        color: Colors.lightBlue),
-                    textAlign: TextAlign.start,
-                  ),
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    Provider.of(context).pageCon.jumpToPage(0);
-                  },
-                ),
-              ],
-            ),
-          ),
+
         ],
       ),
     );

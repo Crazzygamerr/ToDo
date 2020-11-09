@@ -1,6 +1,5 @@
 import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Utility/DatabaseHelper.dart';
-import 'package:ToDo/Utility/Provider.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -311,17 +310,17 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Container(
             padding: EdgeInsets.fromLTRB(
-                0, ScreenUtil().setHeight(10), 0, ScreenUtil().setHeight(10)),
+              0,
+              ScreenUtil().setHeight(20),
+              0,
+              ScreenUtil().setHeight(10),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(
-                  "Don't have an account? ",
-                  style: TextStyle(fontSize: ScreenUtil().setSp(15)),
-                ),
                 GestureDetector(
                   child: Text(
-                    "Sign up",
+                    "Forgot password?",
                     style: TextStyle(
                         fontSize: ScreenUtil().setSp(15),
                         fontWeight: FontWeight.w300,
@@ -331,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    Provider.of(context).pageCon.jumpToPage(1);
+                    showPass();
                   },
                 ),
               ],
@@ -342,68 +341,183 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future showPass() async {
+    TextEditingController controller = new TextEditingController();
+    bool b = false;
+    String dialogS = "";
+
+    await showDialog<String>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialog) {
+          return AlertDialog(
+            title: (!b)?Text(
+              "Enter your email id",
+            ):null,
+            content: Container(
+              //height: ScreenUtil().setHeight(125),
+              width: ScreenUtil().setWidth(300),
+              child: (!b)?Wrap(
+                children: [
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: controller,
+                    onChanged: (value) {
+                      setDialog((){
+                        dialogS = "";
+                      });
+                    },
+                    onEditingComplete: () {
+                      FirebaseAuth.instance
+                              .sendPasswordResetEmail(email: controller.text)
+                              .then((value) {
+                        setDialog(() {
+                          b = true;
+                        });
+                      }).catchError((onError) {
+                        setDialog((){
+                          loading  = false;
+                          if(onError.code == "invalid-email")
+                            s = "Email id is invalid";
+                          else if(onError.code == "user-not-found")
+                            s = "User not found";
+                          else
+                            s = onError.message;
+                        });
+                      });
+                    },
+                    autofocus: true,
+                  ),
+                  Container(
+                    //height: ScreenUtil().setHeight(75),
+                    padding: EdgeInsets.fromLTRB(
+                      0,
+                      ScreenUtil().setHeight(20),
+                      0,
+                      0,
+                    ),
+                    child: Text(
+                      dialogS,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: ScreenUtil().setSp(12.5),
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ):Container(
+                child: Text("Please check your email for a password reset link."),
+              ),
+            ),
+            actions: [
+              FlatButton(
+                child: Text("Exit"),
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+              ),
+              (!b)?FlatButton(
+                child: Text("Next"),
+                onPressed: (){
+                  FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: controller.text)
+                          .then((value) {
+                    setDialog(() {
+                      b = true;
+                    });
+                  }).catchError((onError) {
+                    setDialog((){
+                      dialogS = onError.message;
+                    });
+                  });
+                },
+              ):Container(),
+            ],
+          );
+        }
+      ),
+      barrierDismissible: false,
+    );
+  }
+
   void loginFunc() async {
     setState(() {
       loading = true;
     });
     FocusScope.of(context).unfocus();
-    List<Map<String, dynamic>> notes = [];
-    auth.signInWithEmailAndPassword(
-          email: emailCon.text.toString(),
-          password: passCon.text.toString())
-      .then((value) {
-      FirebaseFirestore.instance
-              .collection("Users")
-              .doc(emailCon.text.toString()).get().then((value) {
-        DatabaseHelper.listOfLists = [];
-        List<dynamic> temp = value.data()['lists'];
-        for(var element in temp){
-          DatabaseHelper.listOfLists.add(element.toString());
-        }
+    if(emailCon.text == "") {
+      setState(() {
+        s = "Email address cannot be empty";
+        loading = false;
+      });
+      return null;
+    } else {
+
+      List<Map<String, dynamic>> notes = [];
+      auth.signInWithEmailAndPassword(
+              email: emailCon.text.toString(),
+              password: passCon.text.toString())
+              .then((value) {
         FirebaseFirestore.instance
                 .collection("Users")
-                .doc(emailCon.text.toString())
-                .collection("todo")
-                .orderBy("id")
-                .get().then((value) {
-          value.docs.forEach((element) {
-            String date;
-            if(element.data()['date'] != null){
-              DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
-              date = d.toIso8601String();
-            }
-            Map<String, dynamic> temp = {
-              DatabaseHelper.columnId: element.data()['id'],
-              DatabaseHelper.columnDone: (element.data()['done'] != null)?element.data()['done']:null,
-              DatabaseHelper.columnTitle: element.data()['title'],
-              DatabaseHelper.columnContent: element.data()['content'],
-              DatabaseHelper.columnDate: date,
-              DatabaseHelper.columnFullDay: (element.data()['fullDay'] != null)?element.data()['fullDay']:null,
-              DatabaseHelper.columnList: element.data()['list'],
-              //DatabaseHelper.columnPriority: (element.data()['priority'] != null)?element.data()['priority']:null,
-            };
-            notes.add(temp);
-          });
-          notes = sortList(notes);
-          _insert(notes);
-          SharedPref.setUser(emailCon.text.toString(), true).then((value) {
-            Navigator.pushAndRemoveUntil(
-                    context,
-                    new MaterialPageRoute(
-                            builder: (context) => HomeScreen(
-                              notes: notes,
-                            )
-                    ), (route) => false);
+                .doc(emailCon.text.toString()).get().then((value) {
+          DatabaseHelper.listOfLists = [];
+          List<dynamic> temp = value.data()['lists'];
+          for(var element in temp){
+            DatabaseHelper.listOfLists.add(element.toString());
+          }
+          FirebaseFirestore.instance
+                  .collection("Users")
+                  .doc(emailCon.text.toString())
+                  .collection("todo")
+                  .orderBy("id")
+                  .get().then((value) {
+            value.docs.forEach((element) {
+              String date;
+              if(element.data()['date'] != null){
+                DateTime d = DateTime.fromMillisecondsSinceEpoch(element.data()['date'].seconds * 1000);
+                date = d.toIso8601String();
+              }
+              Map<String, dynamic> temp = {
+                DatabaseHelper.columnId: element.data()['id'],
+                DatabaseHelper.columnDone: (element.data()['done'] != null)?element.data()['done']:null,
+                DatabaseHelper.columnTitle: element.data()['title'],
+                DatabaseHelper.columnContent: element.data()['content'],
+                DatabaseHelper.columnDate: date,
+                DatabaseHelper.columnFullDay: (element.data()['fullDay'] != null)?element.data()['fullDay']:null,
+                DatabaseHelper.columnList: element.data()['list'],
+                //DatabaseHelper.columnPriority: (element.data()['priority'] != null)?element.data()['priority']:null,
+              };
+              notes.add(temp);
+            });
+            notes = sortList(notes);
+            _insert(notes);
+            SharedPref.setUser(emailCon.text.toString(), true).then((value) {
+              Navigator.pushAndRemoveUntil(
+                      context,
+                      new MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                notes: notes,
+                              )
+                      ), (route) => false);
+            });
           });
         });
+      }).catchError((onError) {
+        setState(() {
+          loading  = false;
+          if(onError.code == "invalid-email")
+            s = "Email id is invalid";
+          else if(onError.code == "user-not-found")
+            s = "User not found";
+          else
+            s = onError.message;
+        });
       });
-  }).catchError((onError) {
-    setState(() {
-      loading  = false;
-      s = onError.message;
-    });
-  });
-    loading = false;
+      //loading = false;
+
+    }
   }
 
   Future _insert(List<Map<String, dynamic>> row) async {
