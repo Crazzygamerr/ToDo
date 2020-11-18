@@ -110,14 +110,14 @@ class _LoadingState extends State<Loading> {
             ],
           ),
           SizedBox(
-            height: 30,
+            height: ScreenUtil().setHeight(20),
           ),
           Text(
             "The classic To-Do list",
-            style: TextStyle(fontSize: 25),
+            style: TextStyle(fontSize: ScreenUtil().setSp(25)),
           ),
           SizedBox(
-            height: 30,
+            height: ScreenUtil().setHeight(20),
           ),
 
           StatefulBuilder(
@@ -152,14 +152,14 @@ class _LoadingState extends State<Loading> {
 
                           SizedBox(
                             height: ScreenUtil().setHeight(
-                              (bottom == 0)?100:0,
+                              (bottom == 0)?50:0
                             ),
                           ),
 
                           Container(
                             //color: Colors.blue,
                             width: ScreenUtil().setWidth(410),
-                            height: ScreenUtil().setHeight(340),
+                            height: ScreenUtil().setHeight(375),
                             child: PageView(
                               controller: pageCon,
                               physics: NeverScrollableScrollPhysics(),
@@ -223,6 +223,7 @@ class _LoadingState extends State<Loading> {
                               )
                             ),*/
                             child: Container(
+                              //color: Colors.blue,
                               child: Text("Continue as Guest"),
                               width: ScreenUtil().setWidth(410),
                               height: ScreenUtil().setHeight(50),

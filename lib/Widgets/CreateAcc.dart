@@ -63,41 +63,37 @@ class _CreateAccState extends State<CreateAcc> {
               children: [
 
                 Container(
-                  padding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(0),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(0)
-                  ),
+                  //color: Colors.green,
                   child: Theme(
                     data: ThemeData(unselectedWidgetColor: Colors.white),
-                    child: Container(
-                      decoration: BoxDecoration(
-                              border: Border.all(
-                                      color: Colors.black,
-                                      width: 3
-                              )
-                      ),
-                      child: Container(
-                        child: Checkbox(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Checkbox(
                           value: loginBox,
                           checkColor: Colors.green,
                           activeColor: Colors.white,
-                          onChanged: (value){
-                            setState(() {
-                              loading=!loading;
-                            });
-                          },
+                          onChanged: (value){},
                         ),
-                        width: 15,
-                        height: 15,
-                      ),
+                        Container(
+                          decoration: BoxDecoration(
+                                  border: Border.all(
+                                          color: Colors.black,
+                                          width: 2
+                                  )
+                          ),
+                          child: Container(
+                            height: 18,
+                            width: 18,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
 
                 Container(
-                  width: ScreenUtil().setWidth(350),
+                  width: ScreenUtil().setWidth(325),
                   height: ScreenUtil().setHeight(47.5),
                   child: TextFormField(
                     controller: emailCon,
@@ -170,7 +166,7 @@ class _CreateAccState extends State<CreateAcc> {
               ScreenUtil().setHeight(5),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
 
                 Stack(
@@ -178,31 +174,31 @@ class _CreateAccState extends State<CreateAcc> {
                     Opacity(
                       opacity: (loading)?0:1,
                       child: Container(
-                        padding: EdgeInsets.fromLTRB(
-                                ScreenUtil().setWidth(10),
-                                ScreenUtil().setHeight(12.5),
-                                ScreenUtil().setWidth(10),
-                                ScreenUtil().setHeight(0)
-                        ),
+                        //color: Colors.green,
                         child: Theme(
                           data: ThemeData(unselectedWidgetColor: Colors.white),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                    border: Border.all(
-                                            color: Colors.black,
-                                            width: 3
-                                    )
-                            ),
-                            child: Container(
-                              child: Checkbox(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Checkbox(
                                 value: passBox,
                                 checkColor: Colors.green,
                                 activeColor: Colors.white,
                                 onChanged: (value){},
                               ),
-                              width: 15,
-                              height: 15,
-                            ),
+                              Container(
+                                decoration: BoxDecoration(
+                                        border: Border.all(
+                                                color: Colors.black,
+                                                width: 2
+                                        )
+                                ),
+                                child: Container(
+                                  height: 18,
+                                  width: 18,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -225,7 +221,7 @@ class _CreateAccState extends State<CreateAcc> {
                 ),
 
                 Container(
-                  width: ScreenUtil().setWidth(350),
+                  width: ScreenUtil().setWidth(325),
                   height: ScreenUtil().setHeight(47.5),
                   child: TextFormField(
                     controller: passCon,

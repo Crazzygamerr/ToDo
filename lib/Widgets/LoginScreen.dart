@@ -30,12 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final dbHelper = DatabaseHelper.instance;
 
-  @override
+  /*@override
   void initState() {
     emailCon.text = "test1@test.com";
     passCon.text = "123456";
     super.initState();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -43,300 +43,314 @@ class _LoginScreenState extends State<LoginScreen> {
         designSize: Size(411.4, 866.3), allowFontScaling: true);
 
     return Container(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              ScreenUtil().setWidth(15),
-              ScreenUtil().setHeight(0),
-              ScreenUtil().setWidth(0),
-              ScreenUtil().setHeight(0)
-            ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Login",
-              style: GoogleFonts.comicNeue(fontSize: ScreenUtil().setSp(27)),
-              textAlign: TextAlign.start,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
+      //height: ScreenUtil().setHeight(340),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                ScreenUtil().setWidth(15),
+                ScreenUtil().setHeight(0),
                 ScreenUtil().setWidth(0),
-                ScreenUtil().setHeight(15),
-                ScreenUtil().setWidth(10),
-                ScreenUtil().setHeight(5)
+                ScreenUtil().setHeight(0)
+              ),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Login",
+                style: GoogleFonts.comicNeue(fontSize: ScreenUtil().setSp(27)),
+                textAlign: TextAlign.start,
+              ),
             ),
-            child: Row(
-              children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                  ScreenUtil().setWidth(0),
+                  ScreenUtil().setHeight(15),
+                  ScreenUtil().setWidth(10),
+                  ScreenUtil().setHeight(5)
+              ),
+              child: Row(
+                children: [
 
-                Container(
-                  padding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(0),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(0)
-                  ),
-                  child: Theme(
-                    data: ThemeData(unselectedWidgetColor: Colors.white),
-                    child: Container(
-                      decoration: BoxDecoration(
-                              border: Border.all(
-                                      color: Colors.black,
-                                      width: 3
-                              )
-                      ),
-                      child: Container(
-                        child: Checkbox(
-                          value: loginBox,
-                          checkColor: Colors.green,
-                          activeColor: Colors.white,
-                          onChanged: (value){},
-                        ),
-                        width: 15,
-                        height: 15,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Container(
-                  width: ScreenUtil().setWidth(350),
-                  height: ScreenUtil().setHeight(47.5),
-                  child: TextFormField(
-                    controller: emailCon,
-                    focusNode: node1,
-                    keyboardType: TextInputType.emailAddress,
-                    textAlign: TextAlign.start,
-                    onChanged: (value) {
-                      setState(() {
-                        loginBox = false;
-                        s = "";
-                      });
-                    },
-                    onEditingComplete: () {
-                      if(emailCon.text == "") {
-                        setState(() {
-                          s = "Email address cannot be empty";
-                        });
-                      } else {
-                        FirebaseFirestore.instance
-                                .collection("Users")
-                                .doc(emailCon.text.toString())
-                                .get()
-                                .then((value) {
-                          if (value.exists) {
-                            setState(() {
-                              loginBox = true;
-                            });
-                            node2.requestFocus();
-                          } else {
-                            setState(() {
-                              loginBox = false;
-                              s = "Email id not found";
-                            });
-                          }
-                        });
-                      }
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.green
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      contentPadding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10)),
-                      hintText: "Enter your email id",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-                ScreenUtil().setWidth(0),
-                ScreenUtil().setHeight(15),
-                ScreenUtil().setWidth(10),
-                ScreenUtil().setHeight(5),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Stack(
-                  children: [
-                    Opacity(
-                      opacity: (loading)?0:1,
-                      child: Container(
-                        padding: EdgeInsets.fromLTRB(
-                                ScreenUtil().setWidth(10),
-                                ScreenUtil().setHeight(12.5),
-                                ScreenUtil().setWidth(10),
-                                ScreenUtil().setHeight(0)
-                        ),
-                        child: Theme(
-                          data: ThemeData(unselectedWidgetColor: Colors.white),
-                          child: Container(
+                  Container(
+                    //color: Colors.green,
+                    child: Theme(
+                      data: ThemeData(unselectedWidgetColor: Colors.white),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Checkbox(
+                            value: loginBox,
+                            checkColor: Colors.green,
+                            activeColor: Colors.white,
+                            onChanged: (value){},
+                          ),
+                          Container(
                             decoration: BoxDecoration(
                                     border: Border.all(
                                             color: Colors.black,
-                                            width: 3
+                                            width: 2
                                     )
                             ),
                             child: Container(
-                              child: Checkbox(
-                                value: passBox,
-                                checkColor: Colors.green,
-                                activeColor: Colors.white,
-                                onChanged: (value){},
-                              ),
-                              width: 15,
-                              height: 15,
+                              height: 18,
+                              width: 18,
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                    Opacity(
-                      opacity: (loading)?1:0,
-                      child: Container(
-                        padding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(15),
-                          ScreenUtil().setWidth(7.5),
-                          ScreenUtil().setHeight(2.5),
+                  ),
+
+                  Container(
+                    width: ScreenUtil().setWidth(325),
+                    height: ScreenUtil().setHeight(47.5),
+                    child: TextFormField(
+                      controller: emailCon,
+                      focusNode: node1,
+                      keyboardType: TextInputType.emailAddress,
+                      textAlign: TextAlign.start,
+                      onChanged: (value) {
+                        setState(() {
+                          loginBox = false;
+                          s = "";
+                        });
+                      },
+                      onEditingComplete: () {
+                        if(emailCon.text == "") {
+                          setState(() {
+                            s = "Email address cannot be empty";
+                          });
+                        } else {
+                          FirebaseFirestore.instance
+                                  .collection("Users")
+                                  .doc(emailCon.text.toString())
+                                  .get()
+                                  .then((value) {
+                            if (value.exists) {
+                              setState(() {
+                                loginBox = true;
+                              });
+                              node2.requestFocus();
+                            } else {
+                              setState(() {
+                                loginBox = false;
+                                s = "Email id not found";
+                              });
+                            }
+                          });
+                        }
+                      },
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.green
+                          ),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        width: ScreenUtil().setWidth(35),
-                        height: ScreenUtil().setHeight(35),
-                        child: CircularProgressIndicator(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        contentPadding: EdgeInsets.fromLTRB(
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10),
+                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setHeight(10)),
+                        hintText: "Enter your email id",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              //color: Colors.green,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                    ScreenUtil().setWidth(0),
+                    ScreenUtil().setHeight(15),
+                    ScreenUtil().setWidth(10),
+                    ScreenUtil().setHeight(5),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+
+                    Container(
+                      //color: Colors.blue,
+                      child: Stack(
+                        children: [
+                          Opacity(
+                            opacity: (loading)?0:1,
+                            child: Container(
+                              //color: Colors.green,
+                              child: Theme(
+                                data: ThemeData(unselectedWidgetColor: Colors.white),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Checkbox(
+                                      value: passBox,
+                                      checkColor: Colors.green,
+                                      activeColor: Colors.white,
+                                      onChanged: (value){},
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                              border: Border.all(
+                                                      color: Colors.black,
+                                                      width: 2
+                                              )
+                                      ),
+                                      child: Container(
+                                        height: 18,
+                                        width: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Opacity(
+                            opacity: (loading)?1:0,
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(
+                                ScreenUtil().setWidth(10),
+                                ScreenUtil().setHeight(15),
+                                ScreenUtil().setWidth(7.5),
+                                ScreenUtil().setHeight(2.5),
+                              ),
+                              width: ScreenUtil().setWidth(35),
+                              height: ScreenUtil().setHeight(35),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Container(
+                      width: ScreenUtil().setWidth(325),
+                      height: ScreenUtil().setHeight(47.5),
+                      child: TextFormField(
+                        controller: passCon,
+                        focusNode: node2,
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                        textAlign: TextAlign.start,
+                        onChanged: (value){
+                          setState(() {
+                            passBox = false;
+                            s = "";
+                          });
+                        },
+                        onEditingComplete: () {
+                          if (!loading) {
+                            loginFunc();
+                          }
+                        },
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                    color: Colors.green
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          contentPadding: EdgeInsets.fromLTRB(
+                              ScreenUtil().setWidth(10),
+                              ScreenUtil().setHeight(10),
+                              ScreenUtil().setWidth(10),
+                              ScreenUtil().setHeight(10)),
+                          hintText: "Enter your password",
+                        ),
                       ),
                     ),
                   ],
                 ),
-
-                Container(
-                  width: ScreenUtil().setWidth(350),
-                  height: ScreenUtil().setHeight(47.5),
-                  child: TextFormField(
-                    controller: passCon,
-                    focusNode: node2,
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: true,
-                    textAlign: TextAlign.start,
-                    onChanged: (value){
-                      setState(() {
-                        passBox = false;
-                        s = "";
-                      });
-                    },
-                    onEditingComplete: () {
-                      if (!loading) {
-                        loginFunc();
-                      }
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                                color: Colors.green
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      contentPadding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10)),
-                      hintText: "Enter your password",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: EdgeInsets.fromLTRB(
-                    0,
-                    ScreenUtil().setHeight(10),
-                    0,
-                    ScreenUtil().setHeight(10),
-            ),
-            //height: ScreenUtil().setHeight(60),
-            //color: Colors.blue,
-            child: Text(
-              s,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
               ),
             ),
-          ),
 
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: RaisedButton(
-              elevation: 0,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.black,
-                  width: 1
-                ),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10),
-                ),
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                      0,
+                      ScreenUtil().setHeight(10),
+                      0,
+                      ScreenUtil().setHeight(10),
               ),
+              //height: ScreenUtil().setHeight(60),
+              //color: Colors.blue,
               child: Text(
-                "Log In",
-                style: TextStyle(color: Colors.black),
-              ),
-              onPressed: () {
-                if (!loading) {
-                  loginFunc();
-                }
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              0,
-              ScreenUtil().setHeight(20),
-              0,
-              ScreenUtil().setHeight(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                GestureDetector(
-                  child: Text(
-                    "Forgot password?",
-                    style: TextStyle(
-                        fontSize: ScreenUtil().setSp(15),
-                        fontWeight: FontWeight.w300,
-                        decoration: TextDecoration.underline,
-                        color: Colors.lightBlue),
-                    textAlign: TextAlign.start,
-                  ),
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    showPass();
-                  },
+                s,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: ScreenUtil().setSp(12)
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+
+            Container(
+              alignment: Alignment.bottomCenter,
+              //width: Screen,
+              child: RaisedButton(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: Colors.black,
+                    width: 1
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "Log In",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: ScreenUtil().setSp(14)
+                  ),
+                ),
+                onPressed: () {
+                  if (!loading) {
+                    loginFunc();
+                  }
+                },
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                0,
+                ScreenUtil().setHeight(20),
+                0,
+                ScreenUtil().setHeight(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Text(
+                      "Forgot password?",
+                      style: TextStyle(
+                          fontSize: ScreenUtil().setSp(15),
+                          fontWeight: FontWeight.w300,
+                          decoration: TextDecoration.underline,
+                          color: Colors.lightBlue),
+                      textAlign: TextAlign.start,
+                    ),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      showPass();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

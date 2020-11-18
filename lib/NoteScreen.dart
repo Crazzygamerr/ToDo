@@ -102,6 +102,7 @@ class _NoteScreenState extends State<NoteScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          //backgroundColor: Colors.black12,
           leading: IconButton(
             onPressed: () {
               save();
@@ -155,7 +156,7 @@ class _NoteScreenState extends State<NoteScreen> {
                     padding: EdgeInsets.fromLTRB(
                             ScreenUtil().setWidth(10),
                             ScreenUtil().setHeight(10),
-                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setWidth(20),
                             ScreenUtil().setHeight(10)
                     ),
                     child: Row(
@@ -183,16 +184,22 @@ class _NoteScreenState extends State<NoteScreen> {
                             children: [
                               Container(
                                 //color: Colors.green,
-                                child: IconButton(
-                                  icon: Icon(Icons.calendar_today),
-                                  onPressed: () {
+                                padding: EdgeInsets.fromLTRB(
+                                        ScreenUtil().setWidth(0),
+                                        ScreenUtil().setHeight(0),
+                                        ScreenUtil().setWidth(20),
+                                        ScreenUtil().setHeight(0)
+                                ),
+                                child: GestureDetector(
+                                  child: Icon(Icons.calendar_today),
+                                  onTap: () {
                                     _selectDate();
                                   },
                                 ),
                               ),
-                              (pickedDate != null)?IconButton(
-                                icon: Icon(Icons.highlight_remove_outlined),
-                                onPressed: () {
+                              (pickedDate != null)?GestureDetector(
+                                child: Icon(Icons.highlight_remove_outlined),
+                                onTap: () {
                                   setState(() {
                                     pickedDate = null;
                                   });
@@ -212,7 +219,7 @@ class _NoteScreenState extends State<NoteScreen> {
                     padding: EdgeInsets.fromLTRB(
                             ScreenUtil().setWidth(10),
                             ScreenUtil().setHeight(10),
-                            ScreenUtil().setWidth(10),
+                            ScreenUtil().setWidth(20),
                             ScreenUtil().setHeight(10)
                     ),
                     child: Row(
@@ -232,15 +239,23 @@ class _NoteScreenState extends State<NoteScreen> {
                         Container(
                           child: Row(
                             children: [
-                              IconButton(
-                                icon: Icon(Icons.access_time_rounded),
-                                onPressed: () {
-                                  _selectTime();
-                                },
+                              Container(
+                                padding: EdgeInsets.fromLTRB(
+                                        ScreenUtil().setWidth(0),
+                                        ScreenUtil().setHeight(0),
+                                        ScreenUtil().setWidth(20),
+                                        ScreenUtil().setHeight(0)
+                                ),
+                                child: GestureDetector(
+                                  child: Icon(Icons.access_time_rounded),
+                                  onTap: () {
+                                    _selectTime();
+                                  },
+                                ),
                               ),
-                              (time != null)?IconButton(
-                                icon: Icon(Icons.highlight_remove_outlined),
-                                onPressed: () {
+                              (time != null)?GestureDetector(
+                                child: Icon(Icons.highlight_remove_outlined),
+                                onTap: () {
                                   setState(() {
                                     time = null;
                                     var temp = DateTime.parse(pickedDate);
@@ -258,7 +273,7 @@ class _NoteScreenState extends State<NoteScreen> {
 
                 Card(
                   child: Container(
-                    height: ScreenUtil().setHeight(60),
+                    height: 60,
                     padding: EdgeInsets.fromLTRB(
                             ScreenUtil().setWidth(10),
                             ScreenUtil().setHeight(10),

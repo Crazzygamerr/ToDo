@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:ToDo/Widgets/Search.dart';
 import 'package:intl/intl.dart';
 
 import 'package:ToDo/Utility/DatabaseHelper.dart';
@@ -33,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   List<Map<String, dynamic>> notes = [];
+  List<Map<String, dynamic>> fireNotes = [];
   int listIndex = 0;
   //List<List<int>> noteCount = [];
 
@@ -144,7 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     });
     if(mounted && conn) {
-      print("checked");
       checkSync();
     }
   }
@@ -161,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black12,
+          //backgroundColor: Colors.black12,
           title: Text(
             DatabaseHelper.listOfLists[listIndex],
             overflow: TextOverflow.ellipsis,
@@ -170,7 +171,12 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: Icon(Icons.search),
               onPressed: (){
-                //2showSearch(context: context, delegate: Search());
+                showSearch(context: context, delegate: Search(
+                  conn: conn,
+                  fireNotes: fireNotes,
+                  getMap: getMap,
+                  notes: notes
+                ));
               },
             ),
           ],
@@ -185,241 +191,244 @@ class _HomeScreenState extends State<HomeScreen> {
                     ScreenUtil().setHeight(0)
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
 
                 Container(
-                  padding: EdgeInsets.fromLTRB(
-                          0,
-                          0,
-                          0,
-                          ScreenUtil().setHeight(20)
-                  ),
-                  child: Icon(
-                    Icons.person,
-                    size: ScreenUtil().setWidth(75),
-                  ),
-                ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: ScreenUtil().setHeight(20),
+                      ),
 
-                Text(
-                  (email == null)
-                          ? ""
-                          : (email == "guest")
-                            ? "Guest"
-                            : email,
-                  style: TextStyle(
-                    fontSize: ScreenUtil().setSp(30)
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                Container(
-                  padding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(5)
-                  ),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Lists:",
-                    style: TextStyle(
-                      fontSize: ScreenUtil().setSp(20)
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-
-                GestureDetector(
-                  onTap: () {
-                    addList().then((value) {
-                      setState(() {
-                      });
-                    });
-                    //dbHelper.printTable();
-                    //print(Timestamp.fromDate(DateTime.parse("2020-11-06T00:00:00.000")).toString() + Timestamp.fromDate(DateTime.parse("2020-11-06T00:00:00.000")).runtimeType.toString());
-                    /*notes.forEach((element) {
-                      print(element.toString() + "\n");
-                    });*/
-                    //checkSync();
-                    dbHelper.querySortedTable();
-                  },
-                  child: Container(
-                    //color: Colors.yellow,
-                    height: ScreenUtil().setHeight(35),
-                    //width: ScreenUtil().setWidth(410),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: ScreenUtil().setWidth(10),
+                      Text(
+                        (email == null)
+                                ? ""
+                                : (email == "guest")
+                                  ? "Guest"
+                                  : email,
+                        style: TextStyle(
+                          fontSize: ScreenUtil().setSp(20)
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, ScreenUtil().setWidth(12), 0),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.blue,
-                            size: ScreenUtil().setHeight(25),
-                          ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                                ScreenUtil().setWidth(10),
+                                ScreenUtil().setHeight(10),
+                                ScreenUtil().setWidth(10),
+                                ScreenUtil().setHeight(5)
                         ),
-                        Text(
-                          "Add list",
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Lists:",
                           style: TextStyle(
-                            fontSize: ScreenUtil().setSp(20),
-                            color: Colors.blue,
+                            fontSize: ScreenUtil().setSp(20)
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      GestureDetector(
+                        onTap: () {
+                          addList().then((value) {
+                            setState(() {
+                            });
+                          });
+                          //dbHelper.printTable();
+                          //print(Timestamp.fromDate(DateTime.parse("2020-11-06T00:00:00.000")).toString() + Timestamp.fromDate(DateTime.parse("2020-11-06T00:00:00.000")).runtimeType.toString());
+                          /*notes.forEach((element) {
+                            print(element.toString() + "\n");
+                          });*/
+                          //checkSync();
+                          dbHelper.querySortedTable();
+                        },
+                        child: Container(
+                          //color: Colors.yellow,
+                          height: ScreenUtil().setHeight(35),
+                          //width: ScreenUtil().setWidth(410),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: ScreenUtil().setWidth(10),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 0, ScreenUtil().setWidth(12), 0),
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.blue,
+                                  size: ScreenUtil().setHeight(25),
+                                ),
+                              ),
+                              Text(
+                                "Add list",
+                                style: TextStyle(
+                                  fontSize: ScreenUtil().setSp(20),
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
 
-                Container(
-                  padding: EdgeInsets.fromLTRB(
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(5),
-                          ScreenUtil().setWidth(10),
-                          ScreenUtil().setHeight(10)
-                  ),
-                  height: ScreenUtil().setHeight(430),
-                  child: ListView.builder(
-                    itemCount: DatabaseHelper.listOfLists.length,
-                    padding: EdgeInsets.all(0),
-                    itemBuilder: (context, pos) {
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                                ScreenUtil().setWidth(10),
+                                ScreenUtil().setHeight(5),
+                                ScreenUtil().setWidth(10),
+                                ScreenUtil().setHeight(10)
+                        ),
+                        height: ScreenUtil().setHeight(430),
+                        child: ListView.builder(
+                          itemCount: DatabaseHelper.listOfLists.length,
+                          padding: EdgeInsets.all(0),
+                          itemBuilder: (context, pos) {
 
-                      return GestureDetector(
-                        onTap: () {
-                          listIndex = pos;
-                          getMap();
-                          Navigator.pop(context);
-                        },
-                        child: Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                          ),
-                          child: Container(
-                            height: ScreenUtil().setHeight(50),
-                            padding: EdgeInsets.fromLTRB(
-                                    ScreenUtil().setWidth(10),
-                                    ScreenUtil().setHeight(10),
-                                    ScreenUtil().setWidth(20),
-                                    ScreenUtil().setHeight(10)
-                            ),
-                            decoration: BoxDecoration(
-                              color: (listIndex == pos)?Colors.grey:Colors.white,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            child: Container(
-                              //color: Colors.green,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-
-                                  Container(
-                                    width: ScreenUtil().setWidth(180),
-                                    //color: Colors.blue,
-                                    child: Text(
-                                      DatabaseHelper.listOfLists[pos].toString(),
-                                      style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(15),
-                                        color: (listIndex != pos)?Colors.black:Colors.white
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                            return GestureDetector(
+                              onTap: () {
+                                listIndex = pos;
+                                getMap();
+                                Navigator.pop(context);
+                              },
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                child: Container(
+                                  height: ScreenUtil().setHeight(50),
+                                  padding: EdgeInsets.fromLTRB(
+                                          ScreenUtil().setWidth(10),
+                                          ScreenUtil().setHeight(10),
+                                          ScreenUtil().setWidth(20),
+                                          ScreenUtil().setHeight(10)
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (listIndex == pos)?Colors.grey:Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
                                     ),
                                   ),
+                                  child: Container(
+                                    //color: Colors.green,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
 
-                                  (pos != 0)?GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: Container(
-                                            //width: ScreenUtil().setWidth(400),
-                                            child: Text(
-                                              "Are you sure you want to delete \"${DatabaseHelper.listOfLists[pos]}\"?",
-                                              maxLines: 3,
-                                              style: TextStyle(
-                                                      fontSize: ScreenUtil().setSp(17)
+                                        Container(
+                                          width: ScreenUtil().setWidth(180),
+                                          //color: Colors.blue,
+                                          child: Text(
+                                            DatabaseHelper.listOfLists[pos].toString(),
+                                            style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(15),
+                                              color: (listIndex != pos)?Colors.black:Colors.white
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+
+                                        (pos != 0)?GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                title: Container(
+                                                  //width: ScreenUtil().setWidth(400),
+                                                  child: Text(
+                                                    "Are you sure you want to delete \"${DatabaseHelper.listOfLists[pos]}\"?",
+                                                    maxLines: 3,
+                                                    style: TextStyle(
+                                                            fontSize: ScreenUtil().setSp(17)
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  FlatButton(
+                                                    child: Text("No"),
+                                                    onPressed: (){
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Text("Yes"),
+                                                    onPressed: (){
+                                                      Navigator.pop(context);
+                                                      drop(pos).then((value) {
+                                                        listIndex = 0;
+                                                        getMap();
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
                                               ),
-                                              overflow: TextOverflow.ellipsis,
+                                              barrierDismissible: false,
+                                            );
+                                          },
+                                          child: Container(
+                                            //color: Colors.blue,
+                                            child: Icon(
+                                              Icons.delete,
                                             ),
                                           ),
-                                          actions: [
-                                            FlatButton(
-                                              child: Text("No"),
-                                              onPressed: (){
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            FlatButton(
-                                              child: Text("Yes"),
-                                              onPressed: (){
-                                                Navigator.pop(context);
-                                                drop(pos).then((value) {
-                                                  listIndex = 0;
-                                                  getMap();
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        barrierDismissible: false,
-                                      );
-                                    },
-                                    child: Container(
-                                      //color: Colors.blue,
-                                      child: Icon(
-                                        Icons.delete,
-                                      ),
+                                        ):Container(),
+
+                                      ],
                                     ),
-                                  ):Container(),
-
-                                ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                      );
+                            );
 
-                    },
+                          },
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: ScreenUtil().setHeight(150),
+                      ),
+                    ],
                   ),
                 ),
 
-                SizedBox(
-                  height: ScreenUtil().setHeight(150),
-                ),
-
                 Container(
-                  color: Colors.black.withOpacity(0.1),
-                  height: ScreenUtil().setHeight(1),
-                ),
+                  child: Column(
+                    children: [
+                      Container(
+                        color: Colors.black.withOpacity(0.1),
+                        height: ScreenUtil().setHeight(1),
+                      ),
 
-                RaisedButton(
-                  elevation: 0,
-                  color: Colors.white,
-                  onPressed: () {
-                    DatabaseHelper.listOfLists = [
-                      "Default"
-                    ];
-                    dbHelper.drop();
-                    if(email != "guest")
-                      auth.signOut();
-                    SharedPref.setUserLogin(false);
-                    Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: ScreenUtil().setWidth(250),
-                    height: ScreenUtil().setHeight(40),
-                    child: Text(
-                      "Log out",
-                    ),
+                      RaisedButton(
+                        elevation: 0,
+                        color: Colors.white,
+                        onPressed: () {
+                          DatabaseHelper.listOfLists = [
+                            "Default"
+                          ];
+                          dbHelper.drop();
+                          if(email != "guest")
+                            auth.signOut();
+                          SharedPref.setUserLogin(false);
+                          Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context) => Loading()), (route) => false);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: ScreenUtil().setWidth(250),
+                          height: ScreenUtil().setHeight(40),
+                          child: Text(
+                            "Log out",
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -431,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
           stream: list1,
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
 
-            List<Map<String, dynamic>> fireNotes = [];
+            fireNotes = [];
             if(conn && snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
               bool hasDate;
               for(int i=0;i<snapshot.data.docs.length;i++){
@@ -682,7 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: EdgeInsets.fromLTRB(
                                         ScreenUtil().setWidth(0),
                                         ScreenUtil().setHeight(10),
-                                        ScreenUtil().setWidth(20),
+                                        ScreenUtil().setWidth(5),
                                         ScreenUtil().setHeight(10)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -712,26 +721,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   });
                                                 },
                                                 child: Container(
-                                                  //color: Colors.blue,
-                                                  padding: EdgeInsets.fromLTRB(
-                                                          ScreenUtil().setWidth(20),
-                                                          ScreenUtil().setHeight(10),
-                                                          ScreenUtil().setWidth(17.5),
-                                                          ScreenUtil().setHeight(10)
-                                                  ),
+                                                  //color: Colors.green,
                                                   child: Theme(
                                                     data: ThemeData(unselectedWidgetColor: Colors.white),
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                              border: Border.all(
-                                                                      color: Colors.black,
-                                                                      width: 3
-                                                              )
-                                                      ),
-                                                      child: Container(
-                                                        width: ScreenUtil().setHeight(15),
-                                                        height: ScreenUtil().setHeight(15),
-                                                        child: Checkbox(
+                                                    child: Stack(
+                                                      alignment: Alignment.center,
+                                                      children: [
+                                                        Checkbox(
                                                           value: (notes[pos]['done'] == null)
                                                                   ?false
                                                                   :(notes[pos]['done'] == 1)
@@ -753,8 +749,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             });
                                                           },
                                                         ),
-
-                                                      ),
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                                  border: Border.all(
+                                                                          color: Colors.black,
+                                                                          width: 2
+                                                                  )
+                                                          ),
+                                                          child: Container(
+                                                            height: 18,
+                                                            width: 18,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
@@ -766,6 +773,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 children: [
                                                   Container(
                                                     width: ScreenUtil().setWidth(275),
+                                                    //color: Colors.blue,
                                                     child: Text(
                                                       notes[pos]['title'].toString(),
                                                       style: TextStyle(fontSize: 20),
