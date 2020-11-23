@@ -30,12 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final dbHelper = DatabaseHelper.instance;
 
-  /*@override
+  @override
   void initState() {
     emailCon.text = "test1@test.com";
     passCon.text = "123456";
     super.initState();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -442,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             fireNotes = [];
             if(conn && snapshot.hasData  && !snapshot.hasError && snapshot.connectionState != ConnectionState.waiting){
-              bool hasDate;
+              bool hasDate = false;
               for(int i=0;i<snapshot.data.docs.length;i++){
                 Map<String, dynamic> temp = snapshot.data.docs[i].data();
                 temp['ref'] = snapshot.data.docs[i].reference;

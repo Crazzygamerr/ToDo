@@ -3,7 +3,6 @@ import 'package:ToDo/HomeScreen.dart';
 import 'package:ToDo/Utility/Shared_pref.dart';
 import 'package:ToDo/Widgets/CreateAcc.dart';
 import 'package:ToDo/Widgets/LoginScreen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

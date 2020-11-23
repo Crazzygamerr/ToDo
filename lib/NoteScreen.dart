@@ -165,7 +165,7 @@ class _NoteScreenState extends State<NoteScreen> {
                         Container(
                           //color: Colors.blue,
                           child: Text(
-                              (pickedDate != null)?DateFormat.yMd().format(
+                              (pickedDate != null)?DateFormat.yMMMMd().format(
                               DateTime.parse(
                                 pickedDate
                               )
