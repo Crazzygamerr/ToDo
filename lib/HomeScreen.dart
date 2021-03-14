@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await auth.createUserWithEmailAndPassword(email: "test@test.com", password: "testString")
             .catchError((onError){
       if(onError.code == "network-request-failed")
-        real = true;
+        real = true;  
       else
         real = false;
     });

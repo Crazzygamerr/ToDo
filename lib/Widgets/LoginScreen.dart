@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextFormField(
                         controller: passCon,
                         focusNode: node2,
-                        keyboardType: TextInputType.visiblePassword,
+                          
                         obscureText: true,
                         textAlign: TextAlign.start,
                         onChanged: (value){
